@@ -6,6 +6,7 @@ import {checkUserConnected} from "../middlewares/auth.middleware";
 export class AuthController {
 
     async createUser(req: Request, res: Response) {
+        console.log("tentative de creation d'un utilisateur");
         try {
             const user = await AuthService.getInstance().subscribeUser({
                 pseudo: req.body.username,
