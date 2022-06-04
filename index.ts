@@ -5,6 +5,7 @@ config();
 import express from "express";
 import {AuthController} from "./controllers/auth.controller";
 import {db} from "./utils/mysql.connector";
+import {TestController} from "./controllers/test.controller";
 
 
 async function startServer(): Promise<void> {
@@ -16,6 +17,7 @@ async function startServer(): Promise<void> {
 
     db.connect();
 
+
     let cors = require('cors');
     // use it before all route definitions
     app.use(cors({origin: 'http://localhost:4200'}));
@@ -23,6 +25,9 @@ async function startServer(): Promise<void> {
     // ---> Déclaration est appels aux controllers
     const authController = new AuthController();
     app.use('/auth', authController.buildRoutes());
+
+    const testController = new TestController();
+    app.use('/test', testController.buildRoutes());
 }
 
 startServer().catch(console.error);
