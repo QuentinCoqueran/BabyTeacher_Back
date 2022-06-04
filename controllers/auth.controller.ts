@@ -6,11 +6,16 @@ import {checkUserConnected} from "../middlewares/auth.middleware";
 export class AuthController {
 
     async createUser(req: Request, res: Response) {
-        const platform = req.headers['user-agent'] || "Unknown";
-        console.log(req.body)
         try {
-            const user = await AuthService.getInstance().subscribeUser();
-            res.status(201).json(user);
+            const user = await AuthService.getInstance().subscribeUser({
+                pseudo: req.body.username,
+                password: req.body.password,
+                lastname: req.body.lastname,
+                name: req.body.name
+            });
+            res.send({
+                response: user
+            });
         } catch (err) {
             console.log(err)
             res.status(400).end();
