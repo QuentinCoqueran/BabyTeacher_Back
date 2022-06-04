@@ -20,7 +20,7 @@ async function startServer(): Promise<void> {
 
     let cors = require('cors');
     // use it before all route definitions
-    app.use(cors({origin: 'http://localhost:4200'}));
+    app.use(cors({origin: 'http://51.38.190.134:4200'}));
 
     // ---> Déclaration est appels aux controllers
     const authController = new AuthController();
