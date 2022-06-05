@@ -17,7 +17,7 @@ export class AuthService {
     }
 
     public async subscribeUser(user: Partial<UserProps>):Promise<boolean> {
-        if (!user.name || !user.lastname || !user.password || !user.pseudo) {
+        if (!user.name || !user.lastname || !user.password || !user.pseudo || !user.role) {
             throw new Error("Data Missed");
         } else {
             let passwordString = SecurityUtils.sha512(user.password);

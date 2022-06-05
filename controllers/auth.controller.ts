@@ -11,7 +11,8 @@ export class AuthController {
                 pseudo: req.body.username,
                 password: req.body.password,
                 lastname: req.body.lastname,
-                name: req.body.name
+                name: req.body.name,
+                role: req.body.role
             });
             res.send({
                 response: user

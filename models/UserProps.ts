@@ -4,4 +4,5 @@ export interface UserProps {
     lastname?: string,
     pseudo?: string,
     password?: string
+    role?:string
 }
