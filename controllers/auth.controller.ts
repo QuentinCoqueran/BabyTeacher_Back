@@ -7,12 +7,18 @@ export class AuthController {
 
     async createUser(req: Request, res: Response) {
         try {
+            console.log(req.body.age);
             const user = await AuthService.getInstance().subscribeUser({
                 login: req.body.login,
                 password: req.body.password,
                 lastname: req.body.lastname,
                 name: req.body.name,
-                role: req.body.role
+                role: req.body.role,
+                age: req.body.age,
+                sexe: req.body.sexe,
+                //photo: req.body.photo,
+                email: req.body.email,
+                //description: req.body.description
             });
             res.send({
                 response: user

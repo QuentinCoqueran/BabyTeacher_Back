@@ -21,23 +21,38 @@ export class AuthService {
 
     public async subscribeUser(user: Partial<UserProps>): Promise<{ response: boolean; type: string }> {
         let errorObj = {response: false, type: ""}
-        console.log(user.login)
-        if (!user.name || !user.lastname || !user.password || !user.login || !user.role) {
+
+        if (((!user.name || !user.lastname || !user.password || !user.login || !user.email) && user.role === "parent") ||
+            ((!user.name || !user.lastname || !user.password || !user.login || !user.age || !user.sexe || !user.email) && user.role === "babysitter")
+            /*!user.photo || */  /*|| !user.description*/) {
             throw new Error("Data Missed");
         } else {
-            const userByLogin = await this.getUserByLogin(user.login);
-            console.log(userByLogin.length)
-            if (userByLogin.length != 0) {
-                errorObj = {response: true, type: "Le pseudo existe déjà"}
+            if( user.age && parseInt(String(user.age)) < 16){
+                errorObj = {response: true, type: "Age minimum 16 ans"}
                 return errorObj;
+            }
+            if (user.login && user.password) {
+                const userByLogin = await this.getUserByLogin(user.login);
+                console.log(userByLogin.length)
+                if (userByLogin.length != 0) {
+                    errorObj = {response: true, type: "Le pseudo existe déjà"}
+                    return errorObj;
+                }
+            } else {
+                throw new Error("Data Missed");
             }
             let passwordString = SecurityUtils.sha512(user.password);
             let nameString = user.name;
             let lastNameString = user.lastname;
             let loginString = user.login;
             let roleString = user.role;
-            const sql = `INSERT INTO users (name, lastname,password,login,id_role) VALUES ('${nameString}', '${lastNameString}','${passwordString}','${loginString}',
-            (SELECT id FROM role WHERE role = '${roleString}'))`;
+            let ageString = user.age;
+            let sexeNumber = parseInt(String(user.sexe));
+            //let photoString = user.photo;
+            let emailString = user.email;
+            //let descriptionString = user.description;
+            const sql = `INSERT INTO users (name, lastname,password,login,id_role,age,sexe,/*photo,*/email/*,description*/) VALUES ('${nameString}', '${lastNameString}','${passwordString}','${loginString}',
+            (SELECT id FROM role WHERE role = '${roleString}'), '${ageString}', '${sexeNumber}', /*'$/*{photoString}',*/ '${emailString}'/*, '$/*{descriptionString}'*/)`;
             try {
                 await this.insertPromise(sql);
                 return errorObj;
@@ -60,30 +75,29 @@ export class AuthService {
         });
     };
 
-    public async logIn(data: Pick<UserProps, 'login' | 'password'>) : Promise<string>{
+    public async logIn(data: Pick<UserProps, 'login' | 'password'>): Promise<string> {
         console.log(data)
         if (!data.login || !data.password) {
             throw new Error("Data Missed");
         }
         let login = data.login;
         let password = SecurityUtils.sha512(data.password);
-        try{
+        try {
             let resultQuery = await this.getUserByLoginPass(login, password);
             const user_id = resultQuery[0].id;
-            if(resultQuery.length > 0){
+            if (resultQuery.length > 0) {
                 let token = SecurityUtils.generateToken();
-                let sql = "INSERT INTO sessions (token, id_user) VALUES ('"+token+"','"+ user_id+"')";
+                let sql = "INSERT INTO sessions (token, id_user) VALUES ('" + token + "','" + user_id + "')";
                 try {
                     await this.insertPromise(sql);
                     return token;
-                }
-                catch (error) {
+                } catch (error) {
                     console.log(error);
                     throw new Error("Error in insert session");
                 }
             }
             throw new Error("User not found");
-        }catch (error){
+        } catch (error) {
             throw new Error("SQl error" + error);
         }
     }
@@ -111,6 +125,10 @@ export class AuthService {
             });
         });
     };
+
+    public async getUserFrom(token: string) {
+        return {};
+    }
 }
 
 
