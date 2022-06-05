@@ -2,7 +2,7 @@ export interface UserProps {
     id?: number,
     name?: string,
     lastname?: string,
-    pseudo?: string,
+    login?: string,
     password?: string
     role?:string
 }
