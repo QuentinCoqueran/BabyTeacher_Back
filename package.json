@@ -4,7 +4,8 @@
   "description": "Realization of a Node.JS API allowing to carry out commands at the terminals, on a smartphone, or online for a fast food chain and also manage orders in the kitchen.",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node ./dist index.js"
+    "start": "rmdir /q /s dist && tsc && node ./dist index.js",
+    "prod_start": "rm -rf dist && tsc && node ./dist index.js"
   },
   "repository": {
     "type": "git",
