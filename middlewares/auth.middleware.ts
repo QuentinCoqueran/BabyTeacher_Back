@@ -28,10 +28,10 @@ export function checkUserConnected(): RequestHandler {
         const token = parts[1];
         try {
             const user = await AuthService.getInstance().getUserFrom(token);
-            if (user === null) {
+            /*if (user === null) {
                 res.status(401).end();
                 return;
-            }
+            }*/
             //req.user = user;
             next();
         } catch (err) {

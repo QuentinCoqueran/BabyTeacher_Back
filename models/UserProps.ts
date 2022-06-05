@@ -3,6 +3,11 @@ export interface UserProps {
     name?: string,
     lastname?: string,
     login?: string,
-    password?: string
-    role?:string
+    password?: string,
+    role?:string,
+    age?: number,
+    sexe?: number,
+    photo?: string,
+    email?: string,
+    description?: string
 }

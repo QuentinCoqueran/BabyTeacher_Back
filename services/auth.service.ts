@@ -22,7 +22,9 @@ export class AuthService {
     public async subscribeUser(user: Partial<UserProps>): Promise<{ response: boolean; type: string }> {
         let errorObj = {response: false, type: ""}
         console.log(user.login)
-        if (!user.name || !user.lastname || !user.password || !user.login || !user.role) {
+        console.log(user)
+        if (!user.name || !user.lastname || !user.password || !user.login || !user.role ||
+            !user.age || !user.sexe || /*!user.photo || */!user.email /*|| !user.description*/){
             throw new Error("Data Missed");
         } else {
             const userByLogin = await this.getUserByLogin(user.login);
@@ -36,8 +38,13 @@ export class AuthService {
             let lastNameString = user.lastname;
             let loginString = user.login;
             let roleString = user.role;
-            const sql = `INSERT INTO users (name, lastname,password,login,id_role) VALUES ('${nameString}', '${lastNameString}','${passwordString}','${loginString}',
-            (SELECT id FROM role WHERE role = '${roleString}'))`;
+            let ageString = user.age;
+            let sexeString = user.sexe;
+            //let photoString = user.photo;
+            let emailString = user.email;
+            //let descriptionString = user.description;
+            const sql = `INSERT INTO users (name, lastname,password,login,id_role,age,sexe,/*photo,*/email/*,description*/) VALUES ('${nameString}', '${lastNameString}','${passwordString}','${loginString}',
+            (SELECT id FROM role WHERE role = '${roleString}'), '${ageString}', '${sexeString}', /*'$/*{photoString}',*/ '${emailString}'/*, '$/*{descriptionString}'*/)`;
             try {
                 await this.insertPromise(sql);
                 return errorObj;
@@ -111,6 +118,10 @@ export class AuthService {
             });
         });
     };
+
+    public async getUserFrom(token: string) {
+        return {};
+    }
 }
 
 
