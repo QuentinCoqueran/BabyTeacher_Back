@@ -8,7 +8,7 @@ export class AuthController {
     async createUser(req: Request, res: Response) {
         try {
             const user = await AuthService.getInstance().subscribeUser({
-                pseudo: req.body.username,
+                login: req.body.login,
                 password: req.body.password,
                 lastname: req.body.lastname,
                 name: req.body.name
@@ -23,12 +23,12 @@ export class AuthController {
     }
 
     async logUser(req: Request, res: Response) {
-        const platform = req.headers['user-agent'] || "Unknown";
+        //const platform = req.headers['user-agent'] || "Unknown";
         try {
             const session = await AuthService.getInstance().logIn({
-                login: req.body.username,
+                login: req.body.login,
                 password: req.body.password
-            }, platform);
+            });//, platform);
             res.send({
                 token: session
             });
