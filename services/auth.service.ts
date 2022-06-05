@@ -19,28 +19,40 @@ export class AuthService {
     private constructor() {
     }
 
-    public async subscribeUser(user: Partial<UserProps>):Promise<boolean> {
-        if (!user.name || !user.lastname || !user.password || !user.login) {
+    public async subscribeUser(user: Partial<UserProps>): Promise<{ response: boolean; type: string }> {
+        let errorObj = {response: false, type: ""}
+        console.log(user.login)
+        if (!user.name || !user.lastname || !user.password || !user.login || !user.role) {
             throw new Error("Data Missed");
         } else {
+            const userByLogin = await this.getUserByLogin(user.login);
+            console.log(userByLogin.length)
+            if (userByLogin.length != 0) {
+                errorObj = {response: true, type: "Le pseudo existe déjà"}
+                return errorObj;
+            }
             let passwordString = SecurityUtils.sha512(user.password);
             let nameString = user.name;
             let lastNameString = user.lastname;
             let loginString = user.login;
-            const sql = "INSERT INTO users (name, lastname,password, login) VALUES ('"+nameString+"','"+lastNameString+"','"+passwordString+"','"+loginString+"')";
-            try{
+            let roleString = user.role;
+            const sql = `INSERT INTO users (name, lastname,password,login,id_role) VALUES ('${nameString}', '${lastNameString}','${passwordString}','${loginString}',
+            (SELECT id FROM role WHERE role = '${roleString}'))`;
+            try {
                 await this.insertPromise(sql);
-                return true;
-            }catch (error){
-                return false;
+                return errorObj;
+            } catch (error) {
+                errorObj = {response: true, type: "Erreur inscription"}
+                return errorObj;
             }
         }
     }
 
-    insertPromise = (sql:string) =>{
-        return new Promise((resolve, reject)=>{
-            db.query(sql,  (error, results)=>{
-                if(error){
+    insertPromise = (sql: string) => {
+        return new Promise((resolve, reject) => {
+            db.query(sql, (error, results) => {
+                if (error) {
+                    console.log(error);
                     return reject(error);
                 }
                 return resolve(results);
@@ -50,7 +62,7 @@ export class AuthService {
 
     public async logIn(data: Pick<UserProps, 'login' | 'password'>) : Promise<string>{
         console.log(data)
-        if(!data.login || !data.password){
+        if (!data.login || !data.password) {
             throw new Error("Data Missed");
         }
         let login = data.login;
@@ -76,7 +88,16 @@ export class AuthService {
         }
     }
 
-    public async getUserFrom(token: string) {
+    public async getUserByLogin(login: string) {
+        const sql = `SELECT * FROM users WHERE login = '${login}'`;
+        return new Promise<RowDataPacket[]>((resolve, reject) => {
+            db.query(sql, (error, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
     }
 
     public async getUserByLoginPass(login: string, password: string) {

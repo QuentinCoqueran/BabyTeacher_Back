@@ -20,7 +20,7 @@ async function startServer(): Promise<void> {
 
     let cors = require('cors');
     // use it before all route definitions
-    app.use(cors({origin: process.env.FRONT_URL}));
+    app.use(cors(process.env.FRONT_URL));
 
     // ---> Déclaration est appels aux controllers
     const authController = new AuthController();
