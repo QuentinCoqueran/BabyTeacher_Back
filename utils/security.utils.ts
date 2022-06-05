@@ -7,4 +7,8 @@ export class SecurityUtils {
         hash.update(str);
         return hash.digest("hex");
     }
+
+    static generateToken(): string {
+        return crypto.randomBytes(64).toString('hex');
+    }
 }

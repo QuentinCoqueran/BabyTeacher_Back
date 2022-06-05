@@ -2,6 +2,8 @@ import {UserProps} from "../models/UserProps";
 import {db} from "../utils/mysql.connector";
 import {SecurityUtils} from "../utils/security.utils";
 import {SessionProps} from "../models/SessionProps";
+import Query from "mysql2/typings/mysql/lib/protocol/sequences/Query";
+import {QueryError, RowDataPacket} from "mysql2";
 
 export class AuthService {
 
@@ -46,28 +48,48 @@ export class AuthService {
         });
     };
 
-    public async logIn(data: Pick<UserProps, 'login' | 'password'>) : Promise<Boolean>{
+    public async logIn(data: Pick<UserProps, 'login' | 'password'>) : Promise<string>{
         console.log(data)
         if(!data.login || !data.password){
             throw new Error("Data Missed");
         }
-        let loginString = data.login;
-        let passwordString = SecurityUtils.sha512(data.password);
-        const sql = "SELECT * FROM users WHERE pseudo='"+loginString+"' AND password='"+passwordString+"'";
+        let login = data.login;
+        let password = SecurityUtils.sha512(data.password);
         try{
-            let resultQuery = await this.selectPromise(sql);
+            let resultQuery = await this.getUserByLoginPass(login, password);
+            const user_id = resultQuery[0].id;
             if(resultQuery.length > 0){
                 let token = SecurityUtils.generateToken();
-                let sql = "INSERT INTO sessions (token, user_id) VALUES ('"+token+"','"+result[0].id+"')";
+                let sql = "INSERT INTO sessions (token, id_user) VALUES ('"+token+"','"+ user_id+"')";
+                try {
+                    await this.insertPromise(sql);
+                    return token;
+                }
+                catch (error) {
+                    console.log(error);
+                    throw new Error("Error in insert session");
+                }
             }
+            throw new Error("User not found");
         }catch (error){
-            return false;
+            throw new Error("SQl error" + error);
         }
-        return true;
     }
 
     public async getUserFrom(token: string) {
     }
+
+    public async getUserByLoginPass(login: string, password: string) {
+        const sql = `SELECT * FROM users WHERE login = '${login}' AND password = '${password}'`;
+        return new Promise<RowDataPacket[]>((resolve, reject) => {
+            db.query(sql, (error, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    };
 }
 
 

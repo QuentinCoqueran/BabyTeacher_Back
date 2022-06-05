@@ -30,7 +30,7 @@ export class AuthController {
                 password: req.body.password
             });//, platform);
             res.send({
-                token: session?.token,
+                token: session
             });
         } catch (err) {
             res.status(401).end(); // unauthorized
