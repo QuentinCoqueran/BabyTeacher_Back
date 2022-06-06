@@ -1,9 +1,12 @@
 import {Request, RequestHandler} from "express";
 import {AuthService} from "../services/auth.service";
+import {UserProps} from "../models/UserProps";
+import {RowDataPacket} from "mysql2";
 
 declare module 'express' {
     export interface Request {
-        user?: string;
+        user?: RowDataPacket;
+        //user?: UserProps;
     }
 }
 
@@ -27,12 +30,13 @@ export function checkUserConnected(): RequestHandler {
         }
         const token = parts[1];
         try {
-            const user = await AuthService.getInstance().getUserFrom(token);
-            /*if (user === null) {
+            const userId = await AuthService.getInstance().getUserByToken(token);
+            if (userId === null) {
                 res.status(401).end();
                 return;
-            }*/
-            //req.user = user;
+            }
+            const user = await AuthService.getInstance().getUserById(userId[0].id_user);
+            req.user = user[0];
             next();
         } catch (err) {
             res.status(401).end();

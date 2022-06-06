@@ -19,6 +19,8 @@ export class AuthService {
     private constructor() {
     }
 
+    // #TODO modifier et découper cette fonction !!!
+
     public async subscribeUser(user: Partial<UserProps>): Promise<{ response: boolean; type: string }> {
         let errorObj = {response: false, type: ""}
 
@@ -124,10 +126,42 @@ export class AuthService {
                 return resolve(results);
             });
         });
-    };
+    }
 
-    public async getUserFrom(token: string) {
-        return {};
+    public async getRoleByUserId(id: number) {
+        const sql = `SELECT role.role FROM role INNER JOIN users on role.id = users.id_role where users.id =${id}`;
+        return new Promise<RowDataPacket[]>((resolve, reject) => {
+            db.query(sql, (error, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    }
+
+    public async getUserByToken(token: string) {
+        const sql = `SELECT id_user FROM sessions WHERE token = '${token}'`;
+        return new Promise<RowDataPacket[]>((resolve, reject) => {
+            db.query(sql, (error, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    }
+
+    async getUserById(userId: number) {
+        const sql = `SELECT * FROM users WHERE id = '${userId}'`;
+        return new Promise<RowDataPacket[]>((resolve, reject) => {
+            db.query(sql, (error, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
     }
 }
 
