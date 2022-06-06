@@ -29,7 +29,7 @@ export class AuthService {
             /*!user.photo || */  /*|| !user.description*/) {
             throw new Error("Data Missed");
         } else {
-            if( user.age && parseInt(String(user.age)) < 16){
+            if (user.age && parseInt(String(user.age)) < 16) {
                 errorObj = {response: true, type: "Age minimum 16 ans"}
                 return errorObj;
             }
@@ -154,6 +154,18 @@ export class AuthService {
 
     async getUserById(userId: number) {
         const sql = `SELECT * FROM users WHERE id = '${userId}'`;
+        return new Promise<RowDataPacket[]>((resolve, reject) => {
+            db.query(sql, (error, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    }
+
+    async getFirstConnection(id_user: any) {
+        const sql = `SELECT id_user FROM sessions WHERE id_user = '${id_user}'`;
         return new Promise<RowDataPacket[]>((resolve, reject) => {
             db.query(sql, (error, results: RowDataPacket[]) => {
                 if (error) {
