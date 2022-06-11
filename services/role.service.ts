@@ -1,5 +1,6 @@
 import {QueryError, RowDataPacket} from "mysql2";
 import {db} from "../utils/mysql.connector";
+import {RoleProps} from "../models/RoleProps.model";
 
 export class RoleService {
 
@@ -41,6 +42,18 @@ export class RoleService {
 
     public async getByRole(role: string){
         let sqlQuery = `SELECT * FROM role WHERE role LIKE '${role}'`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
+    public async add(role: RoleProps){
+        let sqlQuery = `INSERT INTO role (role) VALUES ('${role.role}')`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if(error){

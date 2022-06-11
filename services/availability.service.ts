@@ -1,5 +1,6 @@
 import {QueryError, RowDataPacket} from "mysql2";
 import {db} from "../utils/mysql.connector";
+import {AvailabilityProps} from "../models/AvailabilityProps.model";
 
 export class AvailabilityService {
 
@@ -53,6 +54,21 @@ export class AvailabilityService {
 
     public async getByPostId(postId: number){
         let sqlQuery = `SELECT * FROM availability WHERE availability.idPost LIKE ${postId}`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
+    public async add(availability: AvailabilityProps){
+
+        // TODO condition à définir
+
+        let sqlQuery = `INSERT INTO availability (idUser, idPost, day, startHour, endHour) VALUES (${availability.idUser}, ${availability.idPost}, '${availability.day}', '${availability.startHour}', '${availability.endHour}')`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if(error){

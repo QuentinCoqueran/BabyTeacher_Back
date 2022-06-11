@@ -1,5 +1,6 @@
 import {QueryError, RowDataPacket} from "mysql2";
 import {db} from "../utils/mysql.connector";
+import {SkillProps} from "../models/SkillProps.model";
 
 export class SkillService {
 
@@ -53,6 +54,18 @@ export class SkillService {
 
     public async getByCategorie(categorieId: string){
         let sqlQuery = `SELECT * FROM skills WHERE idCategorie LIKE '${categorieId}'`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
+    public async add(skill: SkillProps){
+        let sqlQuery = `INSERT INTO skills (idUser, idCategorie, name, description) VALUES (${skill.idUser}, '${skill.idCategorie}', '${skill.name}', '${skill.description}')`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if(error){

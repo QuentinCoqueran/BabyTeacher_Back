@@ -1,6 +1,6 @@
 export interface PostProps {
     id: number,
-    iduser: number,
+    idUser: number,
     city: string,
     activityZone?: string,
     hourlyWage: number,

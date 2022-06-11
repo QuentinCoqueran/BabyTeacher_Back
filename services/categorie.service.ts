@@ -40,4 +40,16 @@ export class CategorieService {
         }))
     }
 
+    public async add(categorie: CategorieProps){
+        let sqlQuery = `INSERT INTO categories (name, description) VALUES ('${categorie.name}', '${categorie.description}')`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
 }

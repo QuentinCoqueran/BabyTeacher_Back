@@ -1,6 +1,6 @@
 export interface SessionProps{
     id?: number,
-    endedAt?: Date,
+    expirationDate?: Date,
     createdAt?: Date,
     id_user?: number,
     token?: string,

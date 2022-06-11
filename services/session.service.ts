@@ -1,5 +1,6 @@
 import {QueryError, RowDataPacket} from "mysql2";
 import {db} from "../utils/mysql.connector";
+import {SessionProps} from "../models/SessionProps";
 
 export class SessionService {
 
@@ -53,6 +54,18 @@ export class SessionService {
 
     public async getByToken(token: string){
         let sqlQuery = `SELECT * FROM sessions WHERE sessions.token LIKE '${token}'`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
+    public async add(session: SessionProps){
+        let sqlQuery = `INSERT INTO sessions (token, createdAt, id_user, expirationDate) VALUES ('${session.token}', '${session.createdAt}', '${session.id_user}', '${session.expirationDate}')`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if(error){

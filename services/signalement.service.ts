@@ -1,5 +1,6 @@
 import {QueryError, RowDataPacket} from "mysql2";
 import {db} from "../utils/mysql.connector";
+import {SignalementProps} from "../models/SignalementProps.model";
 
 export class SignalementService {
 
@@ -53,6 +54,18 @@ export class SignalementService {
 
     public async getBySignalerId(signalerId: number){
         let sqlQuery = `SELECT * FROM signalements WHERE signalements.idSignaler LIKE ${signalerId}`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
+    public async add(signalement: SignalementProps){
+        let sqlQuery = `INSERT INTO signalements (idProfile, idSignaler, dateTime, reason) VALUES (${signalement.idProfile}, ${signalement.idSignaler}, '${signalement.dateTime}', '${signalement.reason}')`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if(error){
