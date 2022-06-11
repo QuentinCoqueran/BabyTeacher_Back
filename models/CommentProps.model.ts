@@ -1,5 +1,5 @@
 export interface CommentProps {
-    id: number,
+    id?: number,
     idProfile: number,
     idUserComment: number,
     date: string,

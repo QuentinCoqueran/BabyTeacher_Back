@@ -1,5 +1,5 @@
 export interface PostProps {
-    id: number,
+    id?: number,
     idUser: number,
     city: string,
     activityZone?: string,

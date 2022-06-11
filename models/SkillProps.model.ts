@@ -1,5 +1,5 @@
 export interface SkillProps {
-    id: number,
+    id?: number,
     idUser: number,
     idCategorie: number,
     name: string,

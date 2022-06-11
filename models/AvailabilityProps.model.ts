@@ -1,5 +1,5 @@
 export interface AvailabilityProps {
-    id: number,
+    id?: number,
     idUser?: number,
     idPost?: number,
     day?: string,

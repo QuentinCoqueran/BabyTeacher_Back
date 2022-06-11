@@ -1,5 +1,5 @@
 export interface MessageProps {
-    id: number,
+    id?: number,
     idSender: number,
     idReceiver: number,
     content: string,

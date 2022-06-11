@@ -1,5 +1,5 @@
 export interface SignalementProps {
-    id: number,
+    id?: number,
     idProfile: number,
     idSignaler: number,
     dateTime: string,
