@@ -164,6 +164,30 @@ export class AuthService {
         });
     }
 
+    async getUserByEmail(email: string) {
+        const sql = `SELECT * FROM users WHERE email = '${email}'`;
+        return new Promise<RowDataPacket[]>((resolve, reject) => {
+            db.query(sql, (error, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    }
+
+    async getUserByRole(role: string) {
+        const sql = `SELECT * FROM users WHERE id_role = (SELECT id FROM role WHERE role = '${role}')`;
+        return new Promise<RowDataPacket[]>((resolve, reject) => {
+            db.query(sql, (error, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    }
+
     async getFirstConnection(id_user: any) {
         const sql = `SELECT id_user FROM sessions WHERE id_user = '${id_user}'`;
         return new Promise<RowDataPacket[]>((resolve, reject) => {

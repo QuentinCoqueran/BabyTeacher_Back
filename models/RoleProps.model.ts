@@ -1,4 +1,4 @@
 export interface RoleProps {
-    id: number,
+    id?: number,
     role: string
 }

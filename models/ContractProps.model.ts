@@ -1,5 +1,5 @@
 export interface ContractProps {
-    id: number,
+    id?: number,
     idParent: number,
     idBabysitter: number,
     validateAt: string,
