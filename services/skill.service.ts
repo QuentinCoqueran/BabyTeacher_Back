@@ -65,7 +65,7 @@ export class SkillService {
     }
 
     public async add(skill: SkillProps){
-        let sqlQuery = `INSERT INTO skills (idUser, idCategorie, name, description) VALUES (${skill.idUser}, '${skill.idCategorie}', '${skill.name}', '${skill.description}')`
+        let sqlQuery = `INSERT INTO skills (idUser, idCategorie, name, description) VALUES (${skill.idUser}, '${skill.idCategorie}', '${skill.name}')`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if(error){
