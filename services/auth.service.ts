@@ -1,9 +1,7 @@
 import {UserProps} from "../models/UserProps";
 import {db} from "../utils/mysql.connector";
 import {SecurityUtils} from "../utils/security.utils";
-import {SessionProps} from "../models/SessionProps";
-import Query from "mysql2/typings/mysql/lib/protocol/sequences/Query";
-import {QueryError, RowDataPacket} from "mysql2";
+import {RowDataPacket} from "mysql2";
 
 export class AuthService {
 
@@ -25,8 +23,7 @@ export class AuthService {
         let errorObj = {response: false, type: ""}
 
         if (((!user.name || !user.lastname || !user.password || !user.login || !user.email) && user.role === "parent") ||
-            ((!user.name || !user.lastname || !user.password || !user.login || !user.age || !user.sexe || !user.email) && user.role === "babysitter")
-            /*!user.photo || */  /*|| !user.description*/) {
+            ((!user.name || !user.lastname || !user.password || !user.login || !user.age || !user.sexe || !user.email) && user.role === "babysitter")) {
             throw new Error("Data Missed");
         } else {
             if (user.age && parseInt(String(user.age)) < 16) {
@@ -50,11 +47,10 @@ export class AuthService {
             let roleString = user.role;
             let ageString = user.age;
             let sexeNumber = parseInt(String(user.sexe));
-            //let photoString = user.photo;
             let emailString = user.email;
-            //let descriptionString = user.description;
-            const sql = `INSERT INTO users (name, lastname,password,login,id_role,age,sexe,/*photo,*/email/*,description*/) VALUES ('${nameString}', '${lastNameString}','${passwordString}','${loginString}',
-            (SELECT id FROM role WHERE role = '${roleString}'), '${ageString}', '${sexeNumber}', /*'$/*{photoString}',*/ '${emailString}'/*, '$/*{descriptionString}'*/)`;
+
+            const sql = `INSERT INTO users (name, lastname,password,login,id_role,age,sexe,email) VALUES ('${nameString}', '${lastNameString}','${passwordString}','${loginString}',
+            (SELECT id FROM role WHERE role = '${roleString}'), '${ageString}', '${sexeNumber}',  '${emailString}')`;
             try {
                 await this.insertPromise(sql);
                 return errorObj;
@@ -174,6 +170,50 @@ export class AuthService {
                 return resolve(results);
             });
         });
+    }
+
+    async updateBabysitter(data: Pick<UserProps, 'id' | 'photo' | 'description'>) {
+        if (!data.id) {
+            throw new Error("Data Missed");
+        }
+        let photoString = data.photo;
+        let descriptionString = data.description;
+        let id_user = data.id;
+
+        let resultQuery = await this.getUserById(id_user);
+        if (resultQuery.length > 0) {
+            if (!photoString) {
+                photoString = resultQuery[0].photo;
+            }
+            if (!descriptionString) {
+                descriptionString = resultQuery[0].description;
+            }
+        }
+        let sql = `UPDATE users SET photo = '${photoString}', description = '${descriptionString}' WHERE id = '${id_user}'`;
+        return new Promise<RowDataPacket[]>((resolve, reject) => {
+            db.query(sql, (error, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    }
+
+    async updateSkillsBabysitter(param: { arraySkills: any, id: number }) {
+        let arraySkills = param.arraySkills;
+        for (let i = 0; i < arraySkills.length; i++) {
+            let sql = `INSERT INTO skills (idUser, idCategorie, name) VALUES (
+            '${(param.id)}',
+            (SELECT id FROM categories WHERE name = '${arraySkills[i].category}'),
+            '${arraySkills[i].skill}')`;
+            try {
+                await this.insertPromise(sql);
+            } catch (error) {
+                console.log(error);
+                throw new Error("Error in insert session");
+            }
+        }
     }
 }
 

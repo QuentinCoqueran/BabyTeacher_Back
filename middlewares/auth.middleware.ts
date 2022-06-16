@@ -11,6 +11,7 @@ declare module 'express' {
 }
 
 export function checkUserConnected(): RequestHandler {
+
     return async function (req: Request,
                            res,
                            next) {
