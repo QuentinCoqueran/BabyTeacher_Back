@@ -3,5 +3,4 @@ export interface SkillProps {
     idUser: number,
     idCategorie: number,
     name: string,
-    description: string
 }

@@ -16,9 +16,7 @@ export class AuthController {
                 role: req.body.role,
                 age: req.body.age,
                 sexe: req.body.sexe,
-                //photo: req.body.photo,
                 email: req.body.email,
-                //description: req.body.description
             });
             res.send({
                 response: user
@@ -37,17 +35,16 @@ export class AuthController {
                 login: req.body.login,
                 password: req.body.password
             });//, platform);
-            const userId = await AuthService.getInstance().getUserByToken(session);
-            const role = await AuthService.getInstance().getRoleByUserId(userId[0].id_user);
-            const firstConnection = await AuthService.getInstance().getFirstConnection(userId[0].id_user);
+            const user = await AuthService.getInstance().getUserByToken(session);
+            const role = await AuthService.getInstance().getRoleByUserId(user[0].id_user);
+            const firstConnection = await AuthService.getInstance().getFirstConnection(user[0].id_user);
             if (firstConnection.length === 1) {
                 firstConnectionBool = true;
             }
             let response = {
                 token: session,
                 role: role[0].role,
-                firstConnection: firstConnectionBool,
-                userId: userId[0].id_user
+                firstConnection: firstConnectionBool
             };
             res.send({
                 response: response
@@ -65,9 +62,32 @@ export class AuthController {
         }
     }
 
+    async updateBabysitter(req: Request, res: Response) {
+        try {
+            await AuthService.getInstance().updateBabysitter({
+                id: req.body.id,
+                photo: req.body.photo,
+                description: req.body.description,
+            });
+            if (req.body.arraySkill[0].category != '' && req.body.arraySkill[0].skill != '') {
+                await AuthService.getInstance().updateSkillsBabysitter({
+                    id: req.body.id,
+                    arraySkills: req.body.arraySkill
+                });
+                res.send({
+                    response: true
+                });
+            }
+        } catch (err) {
+            console.log(err)
+            res.status(400).end();
+        }
+    }
+
     buildRoutes(): Router {
         const router = express.Router();
         router.post('/subscribe', express.json(), this.createUser.bind(this));
+        router.post('/updateBabysitter', express.json(), this.updateBabysitter.bind(this));
         router.post('/login', express.json(), this.logUser.bind(this));
         router.get('/me', checkUserConnected(), this.me.bind(this));
         return router;
