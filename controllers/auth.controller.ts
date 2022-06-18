@@ -7,7 +7,6 @@ export class AuthController {
 
     async createUser(req: Request, res: Response) {
         try {
-            console.log(req.body.age);
             const user = await AuthService.getInstance().subscribeUser({
                 login: req.body.login,
                 password: req.body.password,

@@ -1,10 +1,16 @@
 import {QueryError, RowDataPacket} from "mysql2";
 import {db} from "../utils/mysql.connector";
-import {PostProps} from "../models/PostProps.model";
+import {PostProps} from "../models";
 
 export class PostService {
 
     private static instance?: PostService;
+
+
+
+
+
+
 
     public static getInstance(): PostService {
         if (PostService.instance === undefined) {
@@ -64,4 +70,31 @@ export class PostService {
         }))
     }
 
+    public async createParentPost(post: Partial<PostProps>): Promise<{ response: boolean; type: string }> {
+        let errorObj = { response: false, type: "Ok" };
+        if (!post.idUser || !post.city || !post.hourlyWage || !post.description || !post.ageChild || !post.numberChild) {
+            throw new Error("Data missed");
+        } else {
+            const sqlQuery = `INSERT INTO posts (idUser, city, hourlyWage, description, ageChild, numberChild) VALUES (${post.idUser}, '${post.city}', ${post.hourlyWage}, '${post.description}', ${post.ageChild}, ${post.numberChild})`;
+            try {
+                await this.insertPromise(sqlQuery);
+                return errorObj;
+            }catch (error) {
+                errorObj = {response: true, type: "Erreur d'ajout du post"}
+                return errorObj;
+            }
+        }
+    }
+
+    insertPromise = (sql: string) => {
+        return new Promise((resolve, reject) => {
+            db.query(sql, (error, results) => {
+                if (error) {
+                    console.log(error);
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    };
 }
