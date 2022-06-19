@@ -75,7 +75,25 @@ export class PostService {
         if (!post.idUser || !post.city || !post.hourlyWage || !post.description || !post.ageChild || !post.numberChild) {
             throw new Error("Data missed");
         } else {
-            const sqlQuery = `INSERT INTO posts (idUser, city, hourlyWage, description, ageChild, numberChild) VALUES (${post.idUser}, '${post.city}', ${post.hourlyWage}, '${post.description}', ${post.ageChild}, ${post.numberChild})`;
+            const type = "parent";
+            const sqlQuery = `INSERT INTO posts (idUser, city, hourlyWage, description, ageChild, numberChild, type) VALUES (${post.idUser}, '${post.city}', ${post.hourlyWage}, '${post.description}', ${post.ageChild}, ${post.numberChild}, '${type}')`;
+            try {
+                await this.insertPromise(sqlQuery);
+                return errorObj;
+            }catch (error) {
+                errorObj = {response: true, type: "Erreur d'ajout du post"}
+                return errorObj;
+            }
+        }
+    }
+
+    public async createBabyTeacherPost(post: Partial<PostProps>): Promise<{ response: boolean; type: string }> {
+        let errorObj = { response: false, type: "Ok" };
+        if (!post.idUser || !post.activityZone || !post.hourlyWage || !post.description ) {
+            throw new Error("Data missed");
+        } else {
+            const type = "babyteacher";
+            const sqlQuery = `INSERT INTO posts (idUser, activityZone, hourlyWage, description, type) VALUES (${post.idUser}, '${post.activityZone}', ${post.hourlyWage}, '${post.description}', '${type}')`;
             try {
                 await this.insertPromise(sqlQuery);
                 return errorObj;

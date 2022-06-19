@@ -11,7 +11,7 @@ export class PostController{
                 const role = await AuthService.getInstance().getRoleByUserId(req.user[0].id_user);
                 //check if role === parent
                 if(role[0].role === "parent"){
-                    const post = await PostService.createParentPost({
+                    const post = await PostService.getInstance().createParentPost({
                         idUser: req.user[0].idUser,
                         city: req.body.city,
                         hourlyWage: req.body.hourlyWage,
@@ -24,7 +24,7 @@ export class PostController{
                     });
                 }
                 else{
-                    const post = await PostService.createBabyTeacherPost({
+                    const post = await PostService.getInstance().createBabyTeacherPost({
                         idUser: req.body.idUser,
                         activityZone: req.body.activityZone,
                         hourlyWage: req.body.hourlyWage,
@@ -45,8 +45,8 @@ export class PostController{
     buildRoutes(): Router {
         const router = express.Router();
         router.post('/add', checkUserConnected(), this.createPost.bind(this));
-        router.post('/update', express.json(), this.updatePost.bind(this));
-        router.get('/show/:id', checkUserConnected(), this.show.bind(this));
+        // router.post('/update', express.json(), this.updatePost.bind(this));
+        // router.get('/show/:id', checkUserConnected(), this.show.bind(this));
         return router;
     }
 }
