@@ -7,7 +7,6 @@ export class AuthController {
 
     async createUser(req: Request, res: Response) {
         try {
-            console.log(req.body.age);
             const user = await AuthService.getInstance().subscribeUser({
                 login: req.body.login,
                 password: req.body.password,
@@ -44,12 +43,14 @@ export class AuthController {
             let response = {
                 token: session,
                 role: role[0].role,
-                firstConnection: firstConnectionBool
+                firstConnection: firstConnectionBool,
+                login: role[0].login,
             };
             res.send({
                 response: response
             });
         } catch (err) {
+            console.log(err)
             res.status(401).end(); // unauthorized
         }
     }
@@ -57,6 +58,20 @@ export class AuthController {
     async me(req: Request, res: Response) {
         try {
             res.json(req.user);
+        } catch (err) {
+            res.json(null);
+        }
+    }
+
+    async getRoleByUserId(req: Request, res: Response) {
+        try {
+            console.log(req.params)
+            if (req.params) {
+                const role = await AuthService.getInstance().getRoleByUserId(req.params.id_user);
+                res.json(role);
+            } else {
+                res.json(null);
+            }
         } catch (err) {
             res.json(null);
         }
@@ -84,12 +99,45 @@ export class AuthController {
         }
     }
 
+    async updateUser(req: Request, res: Response) {
+        try {
+            await AuthService.getInstance().updateUser({
+                id: req.body.id,
+                sexe: req.body.sexe,
+                name: req.body.name,
+                lastname: req.body.lastname,
+                email: req.body.email,
+                description: req.body.description,
+                age: req.body.age,
+            });
+            res.send({
+                response: true
+            });
+        } catch (err) {
+            console.log(err)
+            res.status(400).end();
+        }
+    }
+
+    async getUserLogin(req: Request, res: Response) {
+        try {
+            let user = await AuthService.getInstance().getUserByLogin(req.params.login);
+            res.json(user[0]);
+        } catch (err) {
+            console.log(err)
+            res.status(400).end();
+        }
+    }
+
     buildRoutes(): Router {
         const router = express.Router();
         router.post('/subscribe', express.json(), this.createUser.bind(this));
         router.post('/updateBabysitter', express.json(), this.updateBabysitter.bind(this));
+        router.post('/updateUser', express.json(), this.updateUser.bind(this));
         router.post('/login', express.json(), this.logUser.bind(this));
         router.get('/me', checkUserConnected(), this.me.bind(this));
+        router.get('/getRoleByUserId/:id_user', this.getRoleByUserId.bind(this));
+        router.get('/getUserLogin/:login', express.json(), this.getUserLogin.bind(this));
         return router;
     }
 }

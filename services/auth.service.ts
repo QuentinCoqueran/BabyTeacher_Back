@@ -32,7 +32,6 @@ export class AuthService {
             }
             if (user.login && user.password) {
                 const userByLogin = await this.getUserByLogin(user.login);
-                console.log(userByLogin.length)
                 if (userByLogin.length != 0) {
                     errorObj = {response: true, type: "Le pseudo existe déjà"}
                     return errorObj;
@@ -74,7 +73,6 @@ export class AuthService {
     };
 
     public async logIn(data: Pick<UserProps, 'login' | 'password'>): Promise<string> {
-        console.log(data)
         if (!data.login || !data.password) {
             throw new Error("Data Missed");
         }
@@ -124,8 +122,8 @@ export class AuthService {
         });
     }
 
-    public async getRoleByUserId(id: number) {
-        const sql = `SELECT role.role FROM role INNER JOIN users on role.id = users.id_role where users.id =${id}`;
+    public async getRoleByUserId(id: string) {
+        const sql = `SELECT role.role, users.login FROM role INNER JOIN users on role.id = users.id_role where users.id =${parseInt(id)}`;
         return new Promise<RowDataPacket[]>((resolve, reject) => {
             db.query(sql, (error, results: RowDataPacket[]) => {
                 if (error) {
@@ -214,6 +212,34 @@ export class AuthService {
             }
         }
         let sql = `UPDATE users SET photo = '${photoString}', description = '${descriptionString}' WHERE id = '${id_user}'`;
+        return new Promise<RowDataPacket[]>((resolve, reject) => {
+            db.query(sql, (error, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    }
+
+    async updateUser(data: Pick<UserProps, 'id' | 'sexe' | 'name' | 'lastname' | 'email' | 'description' | 'age'>) {
+        if (!data.id || !data.name || !data.lastname || !data.email || !data.sexe) {
+            throw new Error("Data Missed");
+        }
+        let descriptionString = data.description;
+        let id_user = data.id;
+        let nameString = data.name;
+        let lastnameString = data.lastname;
+        let emailString = data.email;
+        let ageNumber = data.age;
+
+        let resultQuery = await this.getUserById(id_user);
+
+        if (resultQuery.length <= 0) {
+            throw new Error("User not found");
+        }
+
+        let sql = `UPDATE users SET name = '${nameString}', lastname = '${lastnameString}', email = '${emailString}', age = '${ageNumber}', description = '${descriptionString}' WHERE id = '${id_user}'`;
         return new Promise<RowDataPacket[]>((resolve, reject) => {
             db.query(sql, (error, results: RowDataPacket[]) => {
                 if (error) {
