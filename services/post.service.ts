@@ -75,8 +75,10 @@ export class PostService {
         if (!post.idUser || !post.city || !post.hourlyWage || !post.description || !post.ageChild || !post.numberChild) {
             throw new Error("Data missed");
         } else {
+            // check if description contains "'" and put "\" before
+            const description = post.description.replace(/'/g, "\\'");
             const type = "parent";
-            const sqlQuery = `INSERT INTO posts (idUser, city, hourlyWage, description, ageChild, numberChild, type) VALUES (${post.idUser}, '${post.city}', ${post.hourlyWage}, '${post.description}', ${post.ageChild}, ${post.numberChild}, '${type}')`;
+            const sqlQuery = `INSERT INTO posts (idUser, city, hourlyWage, description, ageChild, numberChild, type) VALUES (${post.idUser}, '${post.city}', ${post.hourlyWage}, '${description}', ${post.ageChild}, ${post.numberChild}, '${type}')`;
             try {
                 await this.insertPromise(sqlQuery);
                 return errorObj;
@@ -92,8 +94,9 @@ export class PostService {
         if (!post.idUser || !post.activityZone || !post.hourlyWage || !post.description ) {
             throw new Error("Data missed");
         } else {
-            const type = "babyteacher";
-            const sqlQuery = `INSERT INTO posts (idUser, activityZone, hourlyWage, description, type) VALUES (${post.idUser}, '${post.activityZone}', ${post.hourlyWage}, '${post.description}', '${type}')`;
+            const description = post.description.replace(/'/g, "\\'");
+            const type = "babysitter";
+            const sqlQuery = `INSERT INTO posts (idUser, activityZone, hourlyWage, description, type) VALUES (${post.idUser}, '${post.activityZone}', ${post.hourlyWage}, '${description}', '${type}')`;
             try {
                 await this.insertPromise(sqlQuery);
                 return errorObj;
