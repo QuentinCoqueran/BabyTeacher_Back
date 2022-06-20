@@ -182,7 +182,7 @@ export class AuthService {
         });
     }
 
-    async getFirstConnection(id_user: any) {
+    async getFirstConnexion(id_user: any) {
         const sql = `SELECT id_user FROM sessions WHERE id_user = '${id_user}'`;
         return new Promise<RowDataPacket[]>((resolve, reject) => {
             db.query(sql, (error, results: RowDataPacket[]) => {
@@ -264,6 +264,18 @@ export class AuthService {
                 throw new Error("Error in insert session");
             }
         }
+    }
+
+    async getAllUsers() {
+        const sql = `SELECT * FROM users`;
+        return new Promise<RowDataPacket[]>((resolve, reject) => {
+            db.query(sql, (error, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
     }
 }
 

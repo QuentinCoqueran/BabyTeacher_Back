@@ -5,6 +5,7 @@ import {checkUserConnected} from "../middlewares/auth.middleware";
 
 export class AuthController {
 
+
     async createUser(req: Request, res: Response) {
         try {
             const user = await AuthService.getInstance().subscribeUser({
@@ -36,7 +37,7 @@ export class AuthController {
             });//, platform);
             const user = await AuthService.getInstance().getUserByToken(session);
             const role = await AuthService.getInstance().getRoleByUserId(user[0].id_user);
-            const firstConnection = await AuthService.getInstance().getFirstConnection(user[0].id_user);
+            const firstConnection = await AuthService.getInstance().getFirstConnexion(user[0].id_user);
             if (firstConnection.length === 1) {
                 firstConnectionBool = true;
             }
@@ -59,6 +60,24 @@ export class AuthController {
         try {
             res.json(req.user);
         } catch (err) {
+            res.json(null);
+        }
+    }
+
+    async getFirstConnexion(req: Request, res: Response) {
+        let firstConnectionBool = false;
+        try {
+
+            if (req.user) {
+                const firstConnection = await AuthService.getInstance().getFirstConnexion(req.user.id);
+                if (firstConnection.length === 1) {
+                    firstConnectionBool = true;
+                }
+            }
+
+            res.json(firstConnectionBool);
+        } catch (err) {
+            console.log(err)
             res.json(null);
         }
     }
@@ -129,6 +148,16 @@ export class AuthController {
         }
     }
 
+    async getAllUsers(req: Request, res: Response) {
+        try {
+            let user = await AuthService.getInstance().getAllUsers();
+            res.json(user);
+        } catch (err) {
+            console.log(err)
+            res.status(400).end();
+        }
+    }
+
     buildRoutes(): Router {
         const router = express.Router();
         router.post('/subscribe', express.json(), this.createUser.bind(this));
@@ -138,6 +167,8 @@ export class AuthController {
         router.get('/me', checkUserConnected(), this.me.bind(this));
         router.get('/getRoleByUserId/:id_user', this.getRoleByUserId.bind(this));
         router.get('/getUserLogin/:login', express.json(), this.getUserLogin.bind(this));
+        router.get('/getFirstConnexion', checkUserConnected(), this.getFirstConnexion.bind(this));
+        router.get('/getAllUsers', express.json(), this.getAllUsers.bind(this));
         return router;
     }
 }
