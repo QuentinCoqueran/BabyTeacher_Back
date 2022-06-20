@@ -6,12 +6,6 @@ export class PostService {
 
     private static instance?: PostService;
 
-
-
-
-
-
-
     public static getInstance(): PostService {
         if (PostService.instance === undefined) {
             PostService.instance = new PostService();
@@ -38,7 +32,7 @@ export class PostService {
         let sqlQuery = `SELECT * FROM posts WHERE id LIKE ${id}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
+                if(error) {
                     return reject(error)
                 }
                 return resolve(results);
@@ -118,4 +112,77 @@ export class PostService {
             });
         });
     };
+
+    async updateParentById(id: number, update: Partial<PostProps>) {
+        let errorObj = { response: false, type: "Ok" };
+        if (!update.city && !update.hourlyWage && !update.description && !update.ageChild && !update.numberChild) {
+            throw new Error("No data");
+        } else {
+            const post = await this.getById(id);
+            if (post.length === 0) {
+                throw new Error("This id doesnt exist");
+            }else {
+                // TODO refactor this
+                if(update.city !== undefined){
+                    post[0].city = update.city;
+                }
+                if(update.hourlyWage !== undefined){
+                    post[0].hourlyWage = update.hourlyWage;
+                }
+                if(update.description !== undefined){
+                    const description = update.description.replace(/'/g, "\\'");
+                    post[0].description = description;
+                }
+                if(update.ageChild !== undefined){
+                    post[0].ageChild = update.ageChild;
+                }
+                if(update.numberChild !== undefined){
+                    post[0].numberChild = update.numberChild;
+                }
+                const sqlQuery = `UPDATE posts SET city = '${post[0].city}', hourlyWage = ${post[0].hourlyWage}, description = '${post[0].description}', ageChild = ${post[0].ageChild}, numberChild = ${post[0].numberChild} WHERE id = ${id}`;
+                try {
+                    await this.insertPromise(sqlQuery);
+                    return errorObj;
+                }catch (err) {
+                    errorObj = {response: true, type: "Erreur de modification du post"}
+                    return errorObj;
+                }
+            }
+        }
+    }
+
+    async updateBabysitterById(id: number, update: Partial<PostProps>) {
+        let errorObj = { response: false, type: "Ok" };
+        if (!update.idUser && !update.activityZone && !update.hourlyWage && !update.description) {
+            throw new Error("No data");
+        } else {
+            if (update.description) {
+                const description = update.description.replace(/'/g, "\\'");
+            }
+            const post = await this.getById(id);
+            if (post.length === 0) {
+                throw new Error("This id doesnt exist");
+            }else {
+                // TODO refactor this
+                if(update.activityZone !== undefined){
+                    post[0].activityZone = update.activityZone;
+                }
+                if(update.hourlyWage !== undefined){
+                    post[0].hourlyWage = update.hourlyWage;
+                }
+                if(update.description !== undefined){
+                    const description = update.description.replace(/'/g, "\\'");
+                    post[0].description = description;
+                }
+                const sqlQuery = `UPDATE posts SET activityZone = '${post[0].activityZone}', hourlyWage = ${post[0].hourlyWage}, description = '${post[0].description}' WHERE id = ${id}`;
+                try {
+                    await this.insertPromise(sqlQuery);
+                    return errorObj;
+                }catch (err) {
+                    errorObj = {response: true, type: "Erreur de modification du post"}
+                    return errorObj;
+                }
+            }
+        }
+    }
 }
