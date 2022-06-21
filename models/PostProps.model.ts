@@ -6,5 +6,6 @@ export interface PostProps {
     hourlyWage: number,
     description: string,
     ageChild?: string,
-    numberChild?: number
+    numberChild?: number,
+    type: string,
 }
