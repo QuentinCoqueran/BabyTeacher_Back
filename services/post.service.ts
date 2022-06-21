@@ -171,8 +171,7 @@ export class PostService {
                     post[0].hourlyWage = update.hourlyWage;
                 }
                 if(update.description !== undefined){
-                    const description = update.description.replace(/'/g, "\\'");
-                    post[0].description = description;
+                    post[0].description = update.description.replace(/'/g, "\\'");
                 }
                 const sqlQuery = `UPDATE posts SET activityZone = '${post[0].activityZone}', hourlyWage = ${post[0].hourlyWage}, description = '${post[0].description}' WHERE id = ${id}`;
                 try {
