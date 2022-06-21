@@ -76,4 +76,28 @@ export class SignalementService {
         }))
     }
 
+    public async update(signalement: SignalementProps){
+        let sqlQuery = `UPDATE signalements SET idProfile = ${signalement.idProfile}, idSignaler = ${signalement.idSignaler}, dateTime = '${signalement.dateTime}', reason = '${signalement.reason}' WHERE id = ${signalement.id}`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
+    public async delete(id: number){
+        let sqlQuery = `DELETE FROM signalements WHERE id = ${id}`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
 }
