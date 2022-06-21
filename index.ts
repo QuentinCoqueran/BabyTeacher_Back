@@ -3,10 +3,11 @@ import {config} from "dotenv";
 config();
 
 import express from "express";
-import {AuthController} from "./controllers/auth.controller";
+import {AuthController, CategorieController, TestController, PostController } from "./controllers";
+
+
 import {db} from "./utils/mysql.connector";
-import {TestController} from "./controllers/test.controller";
-import {CategorieController} from "./controllers/categorie.controller";
+
 
 
 async function startServer(): Promise<void> {
@@ -32,6 +33,9 @@ async function startServer(): Promise<void> {
 
     const testController = new TestController();
     app.use('/test', testController.buildRoutes());
+
+    const postController = new PostController();
+    app.use('/post', postController.buildRoutes());
 }
 
 startServer().catch(console.error);
