@@ -64,4 +64,28 @@ export class RoleService {
         }))
     }
 
+    public async update(role: RoleProps){
+        let sqlQuery = `UPDATE role SET role = '${role.role}' WHERE id = ${role.id}`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
+    public async delete(id: number){
+        let sqlQuery = `DELETE FROM role WHERE id = ${id}`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
 }
