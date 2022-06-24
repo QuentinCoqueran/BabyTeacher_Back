@@ -76,4 +76,28 @@ export class CommentService {
         }))
     }
 
+    public async update(comment: CommentProps){
+        let sqlQuery = `UPDATE comments SET idProfile = ${comment.idProfile}, idUserComment = ${comment.idUserComment}, date = '${comment.date}', content = '${comment.content}', note = ${comment.note} WHERE id = ${comment.id}`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
+    public async delete(id: number){
+        let sqlQuery = `DELETE FROM comments WHERE id = ${id}`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
 }

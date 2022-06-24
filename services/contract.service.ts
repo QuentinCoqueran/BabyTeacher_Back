@@ -76,4 +76,28 @@ export class ContractService {
         }))
     }
 
+    public async update(contract: ContractProps){
+        let sqlQuery = `UPDATE contracts SET idParent = ${contract.idParent}, idBabysitter = ${contract.idBabysitter}, validateAt = '${contract.validateAt}', numberOfHours = ${contract.numberOfHours}, hourlyWage = ${contract.hourlyWage}, qrCode = '${contract.qrCode}', numberOfSitting = ${contract.numberOfSitting}, numberOfAttendance = ${contract.numberOfAttendance}, startDate = '${contract.startDate}', endDate = '${contract.endDate}' WHERE id = ${contract.id}`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
+    public async delete(id: number){
+        let sqlQuery = `DELETE FROM contracts WHERE id = ${id}`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
 }
