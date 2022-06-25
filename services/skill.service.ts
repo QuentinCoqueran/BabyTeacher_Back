@@ -16,7 +16,7 @@ export class SkillService {
     private constructor() {
     }
 
-    public async getAll(){
+    public async getAll() {
         let sqlQuery: string = "SELECT * FROM skills";
         return new Promise<RowDataPacket[]>((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
@@ -28,11 +28,11 @@ export class SkillService {
         });
     }
 
-    public getById(id: number){
+    public getById(id: number) {
         let sqlQuery = `SELECT * FROM skills WHERE id LIKE ${id}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
+                if (error) {
                     return reject(error)
                 }
                 return resolve(results);
@@ -40,11 +40,14 @@ export class SkillService {
         }))
     }
 
-    public async getByUser(userId: number){
-        let sqlQuery = `SELECT * FROM skills WHERE idUser LIKE ${userId}`
+    public async getByUser(login: string) {
+        let sqlQuery = `SELECT skills.name , skills.id, categories.name as test FROM skills
+        INNER JOIN categories on skills.idCategorie = categories.id
+        INNER JOIN users on skills.idUser = users.id
+        where users.login = '${login}'`;
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
+                if (error) {
                     return reject(error)
                 }
                 return resolve(results);
@@ -52,11 +55,11 @@ export class SkillService {
         }))
     }
 
-    public async getByCategorie(categorieId: string){
+    public async getByCategorie(categorieId: string) {
         let sqlQuery = `SELECT * FROM skills WHERE idCategorie LIKE '${categorieId}'`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
+                if (error) {
                     return reject(error)
                 }
                 return resolve(results);
@@ -68,7 +71,7 @@ export class SkillService {
         let sqlQuery = `INSERT INTO skills (idUser, idCategorie, name) VALUES (${skill.idUser}, '${skill.idCategorie}', '${skill.name}')`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
+                if (error) {
                     return reject(error)
                 }
                 return resolve(results);

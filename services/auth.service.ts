@@ -253,6 +253,21 @@ export class AuthService {
     async updateSkillsBabysitter(param: { arraySkills: any, id: number }) {
         let arraySkills = param.arraySkills;
         for (let i = 0; i < arraySkills.length; i++) {
+            let sql = `UPDATE skills SET name = '${arraySkills[i].skill}',
+            idCategorie =  (SELECT id FROM categories WHERE name = '${arraySkills[i].category}')
+            WHERE idUser = ${param.id} AND id = ${arraySkills[i].id}`;
+            try {
+                await this.insertPromise(sql);
+            } catch (error) {
+                console.log(error);
+                throw new Error("Error in update session");
+            }
+        }
+    }
+
+    async insertSkillsBabysitter(param: { arraySkills: any, id: number }) {
+        let arraySkills = param.arraySkills;
+        for (let i = 0; i < arraySkills.length; i++) {
             let sql = `INSERT INTO skills (idUser, idCategorie, name) VALUES (
             '${(param.id)}',
             (SELECT id FROM categories WHERE name = '${arraySkills[i].category}'),
@@ -268,6 +283,18 @@ export class AuthService {
 
     async getAllUsers() {
         const sql = `SELECT * FROM users`;
+        return new Promise<RowDataPacket[]>((resolve, reject) => {
+            db.query(sql, (error, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    }
+
+    deleteSkillsBabysitter(id: string) {
+        let sql = `DELETE FROM skills WHERE id = ${id}`;
         return new Promise<RowDataPacket[]>((resolve, reject) => {
             db.query(sql, (error, results: RowDataPacket[]) => {
                 if (error) {
