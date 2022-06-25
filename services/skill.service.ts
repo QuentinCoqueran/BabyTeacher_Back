@@ -41,7 +41,7 @@ export class SkillService {
     }
 
     public async getByUser(login: string) {
-        let sqlQuery = `SELECT skills.name , categories.name as test FROM skills
+        let sqlQuery = `SELECT skills.name , skills.id, categories.name as test FROM skills
         INNER JOIN categories on skills.idCategorie = categories.id
         INNER JOIN users on skills.idUser = users.id
         where users.login = '${login}'`;

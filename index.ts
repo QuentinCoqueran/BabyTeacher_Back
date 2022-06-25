@@ -16,9 +16,7 @@ async function startServer(): Promise<void> {
     app.listen(process.env.PORT, function () {
         console.log("Server listening on port " + process.env.PORT);
     });
-
     db.connect();
-
 
     let cors = require('cors');
     // use it before all route definitions

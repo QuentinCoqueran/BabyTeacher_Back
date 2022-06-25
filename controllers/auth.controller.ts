@@ -5,7 +5,6 @@ import {checkUserConnected} from "../middlewares/auth.middleware";
 
 export class AuthController {
 
-
     async createUser(req: Request, res: Response) {
         try {
             const user = await AuthService.getInstance().subscribeUser({
@@ -98,12 +97,32 @@ export class AuthController {
 
     async updateBabysitter(req: Request, res: Response) {
         try {
-            await AuthService.getInstance().updateBabysitter({
-                id: req.body.id,
-                photo: req.body.photo,
-                description: req.body.description,
-            });
+            if (req.body.photo || req.body.description) {
+                await AuthService.getInstance().updateBabysitter({
+                    id: req.body.id,
+                    photo: req.body.photo,
+                    description: req.body.description,
+                });
+            }
             if (req.body.arraySkill[0].category != '' && req.body.arraySkill[0].skill != '') {
+                await AuthService.getInstance().insertSkillsBabysitter({
+                    id: req.body.id,
+                    arraySkills: req.body.arraySkill
+                });
+                res.send({
+                    response: true
+                });
+            }
+        } catch (err) {
+            console.log(err)
+            res.status(400).end();
+        }
+    }
+
+    async updateSkillsBabysitter(req: Request, res: Response) {
+        try {
+            console.log(req.body)
+            if (req.body.arraySkill[0].category != '' && req.body.arraySkill[0].skill != '' && req.body.arraySkill[0].id != '') {
                 await AuthService.getInstance().updateSkillsBabysitter({
                     id: req.body.id,
                     arraySkills: req.body.arraySkill
@@ -111,6 +130,8 @@ export class AuthController {
                 res.send({
                     response: true
                 });
+            } else {
+                res.status(400).end();
             }
         } catch (err) {
             console.log(err)
@@ -158,10 +179,22 @@ export class AuthController {
         }
     }
 
+    deleteSkillsBabysitter(req: Request, res: Response) {
+        AuthService.getInstance().deleteSkillsBabysitter(req.params.id).then(() => {
+            res.send({
+                response: true
+            });
+        }).catch(err => {
+            console.log(err)
+            res.status(400).end();
+        });
+    }
+
     buildRoutes(): Router {
         const router = express.Router();
         router.post('/subscribe', express.json(), this.createUser.bind(this));
         router.post('/updateBabysitter', express.json(), this.updateBabysitter.bind(this));
+        router.post('/updateSkillsBabysitter', express.json(), this.updateSkillsBabysitter.bind(this));
         router.post('/updateUser', express.json(), this.updateUser.bind(this));
         router.post('/login', express.json(), this.logUser.bind(this));
         router.get('/me', checkUserConnected(), this.me.bind(this));
@@ -169,6 +202,7 @@ export class AuthController {
         router.get('/getUserLogin/:login', express.json(), this.getUserLogin.bind(this));
         router.get('/getFirstConnexion', checkUserConnected(), this.getFirstConnexion.bind(this));
         router.get('/getAllUsers', express.json(), this.getAllUsers.bind(this));
+        router.delete('/deleteSkillsBabysitter/:id', express.json(), this.deleteSkillsBabysitter.bind(this));
         return router;
     }
 }

@@ -22,7 +22,6 @@ export class CategorieController {
     async getSkillByUser(req: Request, res: Response) {
         try {
             const skills = await SkillService.getInstance().getByUser(req.params.login);
-            console.log(skills)
             res.send({
                 response: skills
             });
@@ -36,7 +35,7 @@ export class CategorieController {
     buildRoutes(): Router {
         const router = express.Router();
         router.get('/getAllCategories', this.getAll.bind(this));
-        router.get('/getSkillsByUserId/:login', this.getSkillByUser.bind(this));
+        router.get('/getSkillsByUserLogin/:login', this.getSkillByUser.bind(this));
         return router;
     }
 }
