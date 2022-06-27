@@ -1,6 +1,8 @@
 import {QueryError, RowDataPacket} from "mysql2";
-import {db} from "../utils/mysql.connector";
-import {AvailabilityProps} from "../models/AvailabilityProps.model";
+import {db} from "../utils";
+import {AvailabilityProps} from "../models";
+import {RoleService} from "./role.service";
+import {AuthService} from "./auth.service";
 
 export class AvailabilityService {
 
@@ -66,9 +68,82 @@ export class AvailabilityService {
 
     public async add(availability: AvailabilityProps){
 
-        // TODO condition à définir
+        if(!availability.idUser && !availability.idPost){
+            return Promise.reject("You must provide an idUser or idPost");
+        }
+
+        if(availability.idUser && availability.idPost) {
+            let idUser = availability.idUser;
+            let role;
+
+            role = await AuthService.getInstance().getRoleByUserId(idUser.toString());
+
+            if(role[0].role === "parent"){
+                return Promise.reject("Parent can't add availability on their profile");
+            }
+
+            let idPost = availability.idPost;
+            let exist = await this.getByPostId(idPost);
+
+            if(exist){
+                return Promise.reject("Availability already exist for this post");
+            }
+
+        }
+
+
 
         let sqlQuery = `INSERT INTO availability (idUser, idPost, day, startHour, endHour) VALUES (${availability.idUser}, ${availability.idPost}, '${availability.day}', '${availability.startHour}', '${availability.endHour}')`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
+    public async update(availability: AvailabilityProps){
+
+
+        if(availability.idUser && availability.idPost) {
+            let idUser = availability.idUser;
+            let role;
+
+            role = await AuthService.getInstance().getRoleByUserId(idUser.toString());
+
+            if(role[0].role === "parent"){
+                return Promise.reject("Parent can't add availability on their profile");
+            }
+
+            let idPost = availability.idPost;
+            let exist = await this.getByPostId(idPost);
+
+            let cpt = 0;
+            while(exist[cpt]){
+                if(exist[cpt].id === availability.id){
+                    cpt++;
+                }else{
+                    return Promise.reject("Availability already exist for this post");
+                }
+            }
+        }
+
+
+        let sqlQuery = `UPDATE availability SET idUser = ${availability.idUser}, idPost = ${availability.idPost}, day = '${availability.day}', startHour = '${availability.startHour}', endHour = '${availability.endHour}' WHERE id = ${availability.id}`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
+    public async delete(id: number){
+        let sqlQuery = `DELETE FROM availability WHERE id = ${id}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if(error){

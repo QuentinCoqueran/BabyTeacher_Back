@@ -3,10 +3,23 @@ import {config} from "dotenv";
 config();
 
 import express from "express";
-import {AuthController, CategorieController, TestController, PostController } from "./controllers";
+import {
+    AuthController,
+    CategorieController,
+    TestController,
+    PostController,
+    MessageController,
+    RoleController,
+    SessionController,
+    SignalementController,
+    AvailabilityController,
+    CommentController,
+    ContractController
+} from "./controllers";
 
 
-import {db} from "./utils/mysql.connector";
+import {db} from "./utils";
+
 
 
 
@@ -34,6 +47,28 @@ async function startServer(): Promise<void> {
 
     const postController = new PostController();
     app.use('/post', postController.buildRoutes());
+
+    const availabilityController = new AvailabilityController();
+    app.use('/availability', availabilityController.buildRoutes());
+
+    const commentController = new CommentController();
+    app.use('/comment', commentController.buildRoutes());
+
+    const contractController = new ContractController();
+    app.use('/contract', contractController.buildRoutes());
+
+    const messageController = new MessageController();
+    app.use('/message', messageController.buildRoutes());
+
+    const roleController = new RoleController();
+    app.use('/role', roleController.buildRoutes());
+
+    const sessionController = new SessionController();
+    app.use('/session', sessionController.buildRoutes());
+
+    const signalementController = new SignalementController();
+    app.use('/signalement', signalementController.buildRoutes());
+
 }
 
 startServer().catch(console.error);
