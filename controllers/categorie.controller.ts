@@ -112,7 +112,7 @@ export class CategorieController {
 
     buildRoutes(): Router {
         const router = express.Router();
-        router.get('/all', this.getAll.bind(this));
+        router.get('/getAllCategories', this.getAll.bind(this));
         router.get('/getSkillsByUserLogin/:login', this.getSkillByUser.bind(this));
         router.get('/:id',this.getById.bind(this));
         router.post('/create', express.json(), this.createCategorie.bind(this));
