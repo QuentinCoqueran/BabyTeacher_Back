@@ -16,7 +16,6 @@ export class MessageController {
     }
 
     async saveMessage(req: Request, res: Response) {
-        console.log(req.body);
         try {
             await MessageService.getInstance().saveMessage(req.body?.messageValue, req.body?.userId1, req.body?.userId2, req.body?.userId, req.body?.date);
             res.json(true);

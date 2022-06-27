@@ -28,7 +28,6 @@ export class MessageService {
         const newListMessage = await MessageModel.findOneAndUpdate(filter, update, {
             returnOriginal: false
         });
-        console.log(newListMessage)
         if (newListMessage) {
             return newListMessage;
         } else {
