@@ -1,6 +1,5 @@
-import {QueryError, RowDataPacket} from "mysql2";
-import {db} from "../utils/mysql.connector";
-import {MessageProps} from "../models/MessageProps.model";
+import {MessageModel, MessageProps} from "../models/message.model";
+
 
 export class MessageService {
 
@@ -16,88 +15,68 @@ export class MessageService {
     private constructor() {
     }
 
-    public async getAll(){
-        let sqlQuery: string = "SELECT * FROM messages";
-        return new Promise<RowDataPacket[]>((resolve, reject) => {
-            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if (error) {
-                    return reject(error);
-                }
-                return resolve(results);
-            });
+    async saveMessage(messageValue: any, idUser1: number, idUser2: number, userId: number, date: Date) {
+        const filter = {
+            $or: [
+                {
+                    $and: [{idUser1: idUser1}, {idUser2: idUser2}]
+                }, {
+                    $and: [{idUser1: idUser2}, {idUser2: idUser1}]
+                }]
+        };
+        const update = {$push: {messageList: {valueMessage: messageValue, idUser: userId, date: date}}};
+        const newListMessage = await MessageModel.findOneAndUpdate(filter, update, {
+            returnOriginal: false
+        });
+        console.log(newListMessage)
+        if (newListMessage) {
+            return newListMessage;
+        } else {
+            throw new Error('No data message');
+        }
+    }
+
+    async getMessage(idUser1: string, idUser2: string) {
+        const message = await MessageModel.findOne({
+            $or: [
+                {
+                    $and: [{idUser1: idUser1}, {idUser2: idUser2}]
+                }, {
+                    $and: [{idUser1: idUser2}, {idUser2: idUser1}]
+                }]
+        });
+        if (message) {
+            return message;
+        } else {
+            return null
+        }
+    }
+
+    async createMessage(message: Partial<MessageProps>) {
+        if (message.idUser1 && message.idUser2) {
+            const newMessage = new MessageModel(message);
+            return await newMessage.save();
+        } else {
+            throw new Error('No data message');
+        }
+    }
+
+    isMessageExist(idUser1: string, idUser2: string) {
+        return MessageModel.findOne({
+            $or: [
+                {
+                    $and: [{idUser1: idUser1}, {idUser2: idUser2}]
+                }, {
+                    $and: [{idUser1: idUser2}, {idUser2: idUser1}]
+                }]
         });
     }
 
-    public async getById(id: number){
-        let sqlQuery = `SELECT * FROM messages WHERE id LIKE ${id}`
-        return new Promise<RowDataPacket[]>(((resolve, reject) => {
-            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
-                    return reject(error)
-                }
-                return resolve(results);
-            })
-        }))
-    }
-
-    public async getBySender(senderId: number){
-        let sqlQuery = `SELECT * FROM messages WHERE messages.idSender LIKE ${senderId}`
-        return new Promise<RowDataPacket[]>(((resolve, reject) => {
-            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
-                    return reject(error)
-                }
-                return resolve(results);
-            })
-        }))
-    }
-
-    public async getByReceiver(receiverId: number){
-        let sqlQuery = `SELECT * FROM messages WHERE messages.idReceiver LIKE ${receiverId}`
-        return new Promise<RowDataPacket[]>(((resolve, reject) => {
-            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
-                    return reject(error)
-                }
-                return resolve(results);
-            })
-        }))
-    }
-
-    public async add(message: MessageProps){
-        let sqlQuery = `INSERT INTO messages (id, idSender, idReceiver, content, sendAt, readAt) VALUES (${message.id}, ${message.idSender}, ${message.idReceiver}, '${message.content}', '${message.sendAt}', '${message.readAt}')`
-        return new Promise<RowDataPacket[]>(((resolve, reject) => {
-            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
-                    return reject(error)
-                }
-                return resolve(results);
-            })
-        }))
-    }
-
-    public async update(message: MessageProps){
-        let sqlQuery = `UPDATE messages SET idSender = ${message.idSender}, idReceiver = ${message.idReceiver}, content = '${message.content}', sendAt = '${message.sendAt}', readAt = '${message.readAt}' WHERE id = ${message.id}`
-        return new Promise<RowDataPacket[]>(((resolve, reject) => {
-            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
-                    return reject(error)
-                }
-                return resolve(results);
-            })
-        }))
-    }
-
-    public async delete(id: number){
-        let sqlQuery = `DELETE FROM messages WHERE id = ${id}`
-        return new Promise<RowDataPacket[]>(((resolve, reject) => {
-            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
-                    return reject(error)
-                }
-                return resolve(results);
-            })
-        }))
+    async getAllMessagesByIdUser(id: string) {
+        //getmessage by idUser1 ou userId2
+        return MessageModel.find({
+            $or: [{idUser1: id}, {idUser2: id}]
+        });
     }
 
 }

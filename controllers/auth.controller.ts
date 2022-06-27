@@ -113,6 +113,9 @@ export class AuthController {
                     response: true
                 });
             }
+            res.send({
+                response: true
+            });
         } catch (err) {
             console.log(err)
             res.status(400).end();
