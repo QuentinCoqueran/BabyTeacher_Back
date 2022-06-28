@@ -5,6 +5,38 @@ import {PostService} from "../services";
 
 export class PostController{
 
+    async deletePost(req: Request, res: Response){
+        const isExist = await PostService.getInstance().getById(parseInt(req.params.id));
+        if(isExist.length !== 0) {
+            try {
+                const post = await PostService.getInstance().deleteById(parseInt(req.params.id));
+                res.status(204).json(post);
+            } catch (err) {
+                console.log(err);
+                res.status(400).json(err);
+            }
+        }else{
+            console.log("This post id doesn't exists")
+            res.status(404).end();
+        }
+    }
+
+    async show(req: Request, res: Response){
+        const isExist = await PostService.getInstance().getById(parseInt(req.params.id));
+        if(isExist.length !== 0) {
+            try {
+                const post = await PostService.getInstance().getById(parseInt(req.params.id));
+                res.json(post);
+            } catch (err) {
+                console.log(err);
+                res.status(400).json(err);
+            }
+        }else{
+            console.log("This post id doesn't exists")
+            res.status(404).end();
+        }
+    }
+
     async updatePost(req: Request, res: Response){
         if(req.user !== undefined) {
             const isExists = await PostService.getInstance().getById(parseInt(req.params.id));
@@ -74,7 +106,8 @@ export class PostController{
         const router = express.Router();
         router.post('/add', checkUserConnected(), express.json(), this.createPost.bind(this));
         router.post('/update/:id', express.json(), checkUserConnected(), this.updatePost.bind(this));
-        //router.get('/get/:id', checkUserConnected(), this.show.bind(this));
+        router.get('/get/:id', checkUserConnected(), this.show.bind(this));
+        router.delete('/delete/:id', checkUserConnected(), this.deletePost.bind(this));
         return router;
     }
 }
