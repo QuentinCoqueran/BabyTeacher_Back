@@ -2,107 +2,70 @@ import express, {Request, Response, Router} from "express";
 import {MessageService} from "../services";
 
 export class MessageController {
-
-    async getAll(req: Request, res: Response) {
-        try {
-            const messages = await MessageService.getInstance().getAll();
-            res.send({
-                response: messages
-            });
-        } catch (err) {
-            console.log(err)
-            res.status(401).end(); // unauthorized
-        }
-    }
-
-    async getById(req: Request, res: Response) {
-        let message;
-        try {
-            if (req.query.id) {
-                message = await MessageService.getInstance().getById(parseInt(<string>req.query.id));
-            }
-            if (message) {
-                res.send({
-                    response: message
-                });
-            }else {
-                res.status(404).end();
-            }
-        } catch (err) {
-            console.log(err)
-            res.status(401).end(); // unauthorized
-        }
-    }
-
     async createMessage(req: Request, res: Response) {
         try {
-            const message = await MessageService.getInstance().add({
-                idSender: req.body.idSender,
-                idReceiver: req.body.idReceiver,
-                content: req.body.content,
-                sendAt: req.body.sendAt,
-                readAt: req.body.readAt
+            await MessageService.getInstance().createMessage({
+                idUser1: req.body.idUser1,
+                idUser2: req.body.idUser2
             });
-            if (message) {
-                res.send({
-                    response: message
-                });
-            }else {
-                res.status(404).end();
-            }
+            res.status(201).json(true);
         } catch (err) {
             console.log(err)
-            res.status(401).end(); // unauthorized
+            res.status(400).end();
         }
     }
 
-    async updateMessage(req: Request, res: Response) {
+    async saveMessage(req: Request, res: Response) {
         try {
-            const message = await MessageService.getInstance().update( {
-                id: parseInt(<string>req.params.id),
-                idSender: req.body.idSender,
-                idReceiver: req.body.idReceiver,
-                content: req.body.content,
-                sendAt: req.body.sendAt,
-                readAt: req.body.readAt
-            });
-            if (message) {
-                res.send({
-                    response: message
-                });
-            }else {
-                res.status(404).end();
-            }
+            await MessageService.getInstance().saveMessage(req.body?.messageValue, req.body?.userId1, req.body?.userId2, req.body?.userId, req.body?.date);
+            res.json(true);
         } catch (err) {
             console.log(err)
-            res.status(401).end(); // unauthorized
+            res.status(400).end();
         }
     }
 
-    async deleteMessage(req: Request, res: Response) {
+    async getMessage(req: Request, res: Response) {
         try {
-            const message = await MessageService.getInstance().delete(parseInt(<string>req.params.id));
-            if (message) {
-                res.send({
-                    response: message
-                });
-            }else {
-                res.status(404).end();
+            const messages = await MessageService.getInstance().getMessage(req.params['id1'], req.params['id2']);
+            res.json(messages);
+        } catch (err) {
+            console.log(err)
+            res.status(400).end();
+        }
+    }
+
+    async getAllMessagesByIdUser(req: Request, res: Response) {
+        try {
+            const messages = await MessageService.getInstance().getAllMessagesByIdUser(req.params['id1']);
+            res.json(messages);
+        } catch (err) {
+            console.log(err)
+            res.status(400).end();
+        }
+    }
+
+    async isMessageExist(req: Request, res: Response) {
+        try {
+            const messages = await MessageService.getInstance().isMessageExist(req.params['id1'], req.params['id2']);
+            if (messages) {
+                res.json(messages._id);
+            } else {
+                res.json(false);
             }
         } catch (err) {
             console.log(err)
-            res.status(401).end(); // unauthorized
+            res.status(400).end();
         }
     }
 
     buildRoutes(): Router {
         const router = express.Router();
-        router.get('/all', this.getAll.bind(this));
-        router.get('/:id', this.getById.bind(this));
-        router.post('/create', express.json(), this.createMessage.bind(this));
-        router.put('/update/:id', express.json(), this.updateMessage.bind(this));
-        router.delete('/delete/:id', express.json(), this.deleteMessage.bind(this));
+        router.post('/save-message', express.json(), this.saveMessage.bind(this));
+        router.post('/create-session-message', express.json(), this.createMessage.bind(this));
+        router.get('/get-message/:id1/:id2', express.json(), this.getMessage.bind(this));
+        router.get('/get-all-messages-by-id/:id1', express.json(), this.getAllMessagesByIdUser.bind(this));
+        router.get('/is-message-exist/:id1/:id2', express.json(), this.isMessageExist.bind(this));
         return router;
     }
-
 }
