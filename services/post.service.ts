@@ -29,11 +29,11 @@ export class PostService {
     }
 
     public async getById(id: number){
-        let sqlQuery = `SELECT * FROM posts WHERE id LIKE ${id}`
+        let sqlQuery = `SELECT * FROM posts WHERE id LIKE ${id}`;
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if(error) {
-                    return reject(error)
+                    return reject(error);
                 }
                 return resolve(results);
             })
@@ -41,11 +41,11 @@ export class PostService {
     }
 
     public async getByUser(userId: number){
-        let sqlQuery = `SELECT * FROM posts WHERE posts.idUser LIKE ${userId}`
+        let sqlQuery = `SELECT * FROM posts WHERE posts.idUser LIKE ${userId}`;
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if(error){
-                    return reject(error)
+                    return reject(error);
                 }
                 return resolve(results);
             })
@@ -185,4 +185,17 @@ export class PostService {
             }
         }
     }
+
+    async deleteById(id: number) {
+        let sqlQuery = `DELETE FROM posts WHERE posts.id LIKE ${id}`;
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error);
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
 }
