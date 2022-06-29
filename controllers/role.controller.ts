@@ -18,8 +18,24 @@ export class RoleController {
         let role;
         try {
             if (req.query.id) {
-                role = await RoleService.getInstance().getById(parseInt(<string>req.query.id));
+                role = await RoleService.getInstance().getById(parseInt(<string>req.params.id));
             }
+            if (role) {
+                res.send({
+                    response: role
+                });
+            }else {
+                res.status(404).end();
+            }
+        } catch (err) {
+            console.log(err)
+            res.status(401).end(); // unauthorized
+        }
+    }
+
+    async getRoleByRole(req: Request, res: Response) {
+        try {
+            const role = await RoleService.getInstance().getByRole(req.params.role);
             if (role) {
                 res.send({
                     response: role
@@ -54,7 +70,7 @@ export class RoleController {
     async updateRole(req: Request, res: Response) {
         try {
             const role = await RoleService.getInstance().update({
-                id: parseInt(<string>req.query.id),
+                id: parseInt(<string>req.params.id),
                 role: req.body.role
             });
             if (role) {
@@ -72,7 +88,7 @@ export class RoleController {
 
     async deleteRole(req: Request, res: Response) {
         try {
-            const role = await RoleService.getInstance().delete(parseInt(<string>req.query.id));
+            const role = await RoleService.getInstance().delete(parseInt(<string>req.params.id));
             if (role) {
                 res.send({
                     response: role
@@ -91,6 +107,7 @@ export class RoleController {
         const router = express.Router();
         router.get('/all', this.getAll.bind(this));
         router.get('/:id', this.getById.bind(this));
+        router.get('/getByRole/:role', this.getRoleByRole.bind(this));
         router.post('/create', express.json(), this.createRole.bind(this));
         router.put('/edit/:id', express.json(), this.updateRole.bind(this));
         router.delete('/delete/:id', express.json(), this.deleteRole.bind(this));

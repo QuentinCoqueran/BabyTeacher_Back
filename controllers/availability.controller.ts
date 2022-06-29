@@ -17,7 +17,7 @@ export class AvailabilityController{
 
     async getAvailabilityById(req: Request, res: Response) {
         try {
-            const availability = await AvailabilityService.getInstance().getById(parseInt(<string>req.query.id));
+            const availability = await AvailabilityService.getInstance().getById(parseInt(<string>req.params.id));
             if (availability) {
                 res.send({
                     response: availability
@@ -33,7 +33,7 @@ export class AvailabilityController{
 
     async getAvailabilityByUserId(req: Request, res: Response) {
         try {
-            const availabilities = await AvailabilityService.getInstance().getByUserId(parseInt(<string>req.query.idUser));
+            const availabilities = await AvailabilityService.getInstance().getByUserId(parseInt(<string>req.params.idUser));
             res.send({
                 response: availabilities
             });
@@ -45,7 +45,7 @@ export class AvailabilityController{
 
     async getAvailabilityByPostId(req: Request, res: Response) {
         try {
-            const availabilities = await AvailabilityService.getInstance().getByPostId(parseInt(<string>req.query.idPost));
+            const availabilities = await AvailabilityService.getInstance().getByPostId(parseInt(<string>req.params.idPost));
             res.send({
                 response: availabilities
             });
@@ -102,7 +102,7 @@ export class AvailabilityController{
 
     async deleteAvailability(req: Request, res: Response) {
         try {
-            const availability = await AvailabilityService.getInstance().delete(parseInt(<string>req.query.id));
+            const availability = await AvailabilityService.getInstance().delete(parseInt(<string>req.params.id));
             if (availability) {
                 res.send({
                     response: availability
@@ -119,9 +119,9 @@ export class AvailabilityController{
     buildRoutes(): Router {
         const router = express.Router();
         router.get('/all', this.getAll.bind(this));
-        router.get('/get/:id', this.getAvailabilityById.bind(this));
-        router.get('/get/:idUser', this.getAvailabilityByUserId.bind(this));
-        router.get('/get/:idPost', this.getAvailabilityByPostId.bind(this));
+        router.get('/:id', this.getAvailabilityById.bind(this));
+        router.get('/getByUser/:idUser', this.getAvailabilityByUserId.bind(this));
+        router.get('/getByPost/:idPost', this.getAvailabilityByPostId.bind(this));
         router.post('/create', express.json(), this.createAvailability.bind(this));
         router.put('/update/:id', express.json(), this.updateAvailability.bind(this));
         router.delete('/delete/:id', express.json(), this.deleteAvailability.bind(this));

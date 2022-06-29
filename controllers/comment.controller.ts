@@ -20,7 +20,7 @@ export class CommentController {
         let comment;
         try {
             if (req.query.id) {
-                comment = await CommentService.getInstance().getById(parseInt(<string>req.query.id));
+                comment = await CommentService.getInstance().getById(parseInt(<string>req.params.id));
             }
             if (comment) {
                 res.send({
@@ -29,6 +29,18 @@ export class CommentController {
             }else {
                 res.status(404).end();
             }
+        } catch (err) {
+            console.log(err)
+            res.status(401).end(); // unauthorized
+        }
+    }
+
+    async getByUserComment(req: Request, res: Response) {
+        try {
+            const comments = await CommentService.getInstance().getByUserComment(parseInt(<string>req.params.idUserComment));
+            res.send({
+                response: comments
+            });
         } catch (err) {
             console.log(err)
             res.status(401).end(); // unauthorized
@@ -51,6 +63,18 @@ export class CommentController {
             }else {
                 res.status(404).end();
             }
+        } catch (err) {
+            console.log(err)
+            res.status(401).end(); // unauthorized
+        }
+    }
+
+    async getCommentByProfile(req: Request, res: Response) {
+        try {
+            const comments = await CommentService.getInstance().getByProfile(parseInt(<string>req.params.idProfile));
+            res.send({
+                response: comments
+            });
         } catch (err) {
             console.log(err)
             res.status(401).end(); // unauthorized
@@ -100,6 +124,8 @@ export class CommentController {
         const router = express.Router();
         router.get('/all', this.getAll.bind(this));
         router.get('/:id', this.getById.bind(this));
+        router.get('/getByUser/:idUserComment', this.getByUserComment.bind(this));
+        router.get('/getByProfile/:idProfile', this.getCommentByProfile.bind(this));
         router.post('/create', express.json(), this.createComment.bind(this));
         router.put('/update/:id', express.json(), this.updateComment.bind(this));
         router.delete('/delete/:id', this.deleteComment.bind(this));

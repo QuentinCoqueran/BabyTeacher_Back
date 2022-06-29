@@ -36,11 +36,23 @@ export class CategorieController {
         }
     }
 
+    async getSkillByCategorie(req: Request, res: Response) {
+        try {
+            const skills = await SkillService.getInstance().getByCategorie(req.params.idCategorie);
+            res.send({
+                response: skills
+            });
+        } catch (err) {
+            console.log(err)
+            res.status(401).end(); // unauthorized
+        }
+    }
+
     async getById(req: Request, res: Response) {
         let categorie;
         try {
             if (req.query.id) {
-                categorie = await CategorieService.getInstance().getById(parseInt(<string>req.query.id));
+                categorie = await CategorieService.getInstance().getById(parseInt(<string>req.params.id));
             }
             if (categorie) {
                 res.send({
@@ -76,7 +88,7 @@ export class CategorieController {
     async updateCategorie(req: Request, res: Response) {
         try {
             const categorie = await CategorieService.getInstance().update({
-                id: parseInt(<string>req.body.id),
+                id: parseInt(<string>req.params.id),
                 name: req.body.name
             });
             if (categorie) {
@@ -94,7 +106,7 @@ export class CategorieController {
 
     async deleteCategorie(req: Request, res: Response) {
         try {
-            const categorie = await CategorieService.getInstance().delete(parseInt(<string>req.query.id));
+            const categorie = await CategorieService.getInstance().delete(parseInt(<string>req.params.id));
             if (categorie) {
                 res.send({
                     response: categorie
@@ -114,6 +126,7 @@ export class CategorieController {
         const router = express.Router();
         router.get('/getAllCategories', this.getAll.bind(this));
         router.get('/getSkillsByUserLogin/:login', this.getSkillByUser.bind(this));
+        router.get('/getSkillsByCategorieId/:idCategorie', this.getSkillByCategorie.bind(this));
         router.get('/:id',this.getById.bind(this));
         router.post('/create', express.json(), this.createCategorie.bind(this));
         router.put('/update/:id', express.json(), this.updateCategorie.bind(this));
