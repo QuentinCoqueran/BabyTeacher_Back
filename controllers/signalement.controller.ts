@@ -19,11 +19,43 @@ export class SignalementController{
         let signalement;
         try {
             if (req.query.id) {
-                signalement = await SignalementService.getInstance().getById(parseInt(<string>req.query.id));
+                signalement = await SignalementService.getInstance().getById(parseInt(<string>req.params.id));
             }
             if (signalement) {
                 res.send({
                     response: signalement
+                });
+            } else {
+                res.status(404).end();
+            }
+        } catch (err) {
+            console.log(err)
+            res.status(401).end(); // unauthorized
+        }
+    }
+
+    async getSignalementByProfile(req: Request, res: Response) {
+        try {
+            const signalements = await SignalementService.getInstance().getByProfileId(parseInt(<string>req.params.idProfile));
+            if (signalements) {
+                res.send({
+                    response: signalements
+                });
+            } else {
+                res.status(404).end();
+            }
+        } catch (err) {
+            console.log(err)
+            res.status(401).end(); // unauthorized
+        }
+    }
+
+    async getSignalementBySignaler(req: Request, res: Response) {
+        try {
+            const signalements = await SignalementService.getInstance().getBySignalerId(parseInt(<string>req.params.idSignaler));
+            if (signalements) {
+                res.send({
+                    response: signalements
                 });
             } else {
                 res.status(404).end();
@@ -58,7 +90,7 @@ export class SignalementController{
     async updateSignalement(req: Request, res: Response) {
         try {
             const signalement = await SignalementService.getInstance().update({
-                id: parseInt(<string>req.query.id),
+                id: parseInt(<string>req.params.id),
                 idProfile: req.body.idProfile,
                 idSignaler: req.body.idSignaler,
                 dateTime: req.body.dateTime,
@@ -79,7 +111,7 @@ export class SignalementController{
 
     async deleteSignalement(req: Request, res: Response) {
         try {
-            const signalement = await SignalementService.getInstance().delete(parseInt(<string>req.query.id));
+            const signalement = await SignalementService.getInstance().delete(parseInt(<string>req.params.id));
             if (signalement) {
                 res.send({
                     response: signalement
@@ -97,6 +129,8 @@ export class SignalementController{
         const router = express.Router();
         router.get('/all', this.getAll.bind(this));
         router.get('/:id', this.getById.bind(this));
+        router.get('/getByProfile/:idProfile', this.getSignalementByProfile.bind(this));
+        router.get('/getBySignaler/:idSignaler', this.getSignalementBySignaler.bind(this));
         router.post('/create', express.json(), this.createSignalement.bind(this));
         router.put('/edit/:id', express.json(), this.updateSignalement.bind(this));
         router.delete('/delete/:id', express.json(), this.deleteSignalement.bind(this));

@@ -18,8 +18,40 @@ export class SessionController {
         let session;
         try {
             if (req.query.id) {
-                session = await SessionService.getInstance().getById(parseInt(<string>req.query.id));
+                session = await SessionService.getInstance().getById(parseInt(<string>req.params.id));
             }
+            if (session) {
+                res.send({
+                    response: session
+                });
+            } else {
+                res.status(404).end();
+            }
+        } catch (err) {
+            console.log(err)
+            res.status(401).end(); // unauthorized
+        }
+    }
+
+    async getByUser(req: Request, res: Response) {
+        try {
+            const session = await SessionService.getInstance().getByUserId(parseInt(<string>req.params.idUser));
+            if (session) {
+                res.send({
+                    response: session
+                });
+            } else {
+                res.status(404).end();
+            }
+        } catch (err) {
+            console.log(err)
+            res.status(401).end(); // unauthorized
+        }
+    }
+
+    async getByToken(req: Request, res: Response) {
+        try {
+            const session = await SessionService.getInstance().getByToken(req.params.token);
             if (session) {
                 res.send({
                     response: session
@@ -57,7 +89,7 @@ export class SessionController {
     async updateSession(req: Request, res: Response) {
         try {
             const session = await SessionService.getInstance().update({
-                id: parseInt(<string>req.query.id),
+                id: parseInt(<string>req.params.id),
                 expirationDate: req.body.expirationDate,
                 createdAt: req.body.createdAt,
                 id_user: req.body.id_user,
@@ -78,7 +110,7 @@ export class SessionController {
 
     async deleteSession(req: Request, res: Response) {
         try {
-            const session = await SessionService.getInstance().delete(parseInt(<string>req.query.id));
+            const session = await SessionService.getInstance().delete(parseInt(<string>req.params.id));
             if (session) {
                 res.send({
                     response: session
@@ -96,6 +128,8 @@ export class SessionController {
         const router = express.Router();
         router.get('/all', this.getAll.bind(this));
         router.get('/:id', this.getById.bind(this));
+        router.get('/getByUser/:idUser', this.getByUser.bind(this));
+        router.get('/getByToken/:token', this.getByToken.bind(this));
         router.post('/create', express.json(), this.createSession.bind(this));
         router.put('/edit/:id', express.json(), this.updateSession.bind(this));
         router.delete('/delete/:id', express.json(), this.deleteSession.bind(this));
