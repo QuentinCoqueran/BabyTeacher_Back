@@ -1,7 +1,7 @@
 import express, {Request, Response, Router} from "express";
 import {AvailabilityService} from "../services";
 
-export class AvailabilityController{
+export class AvailabilityController {
 
     async getAll(req: Request, res: Response) {
         try {
@@ -22,7 +22,7 @@ export class AvailabilityController{
                 res.send({
                     response: availability
                 });
-            }else {
+            } else {
                 res.status(404).end();
             }
         } catch (err) {
@@ -34,6 +34,18 @@ export class AvailabilityController{
     async getAvailabilityByUserId(req: Request, res: Response) {
         try {
             const availabilities = await AvailabilityService.getInstance().getByUserId(parseInt(<string>req.query.idUser));
+            res.send({
+                response: availabilities
+            });
+        } catch (err) {
+            console.log(err)
+            res.status(401).end(); // unauthorized
+        }
+    }
+
+    async getAvailabilityParseByUserId(req: Request, res: Response) {
+        try {
+            const availabilities = await AvailabilityService.getInstance().parseAvailability(parseInt(<string>req.params.idUser));
             res.send({
                 response: availabilities
             });
@@ -68,7 +80,7 @@ export class AvailabilityController{
                 res.send({
                     response: availability
                 });
-            }else {
+            } else {
                 res.status(404).end();
             }
         } catch (err) {
@@ -91,7 +103,7 @@ export class AvailabilityController{
                 res.send({
                     response: availability
                 });
-            }else {
+            } else {
                 res.status(404).end();
             }
         } catch (err) {
@@ -107,7 +119,7 @@ export class AvailabilityController{
                 res.send({
                     response: availability
                 });
-            }else {
+            } else {
                 res.status(404).end();
             }
         } catch (err) {
@@ -121,6 +133,7 @@ export class AvailabilityController{
         router.get('/all', this.getAll.bind(this));
         router.get('/get/:id', this.getAvailabilityById.bind(this));
         router.get('/get/:idUser', this.getAvailabilityByUserId.bind(this));
+        router.get('/getAvailabilityParseByUserId/:idUser', this.getAvailabilityParseByUserId.bind(this));
         router.get('/get/:idPost', this.getAvailabilityByPostId.bind(this));
         router.post('/create', express.json(), this.createAvailability.bind(this));
         router.put('/update/:id', express.json(), this.updateAvailability.bind(this));
