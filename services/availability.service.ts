@@ -1,6 +1,6 @@
 import {QueryError, RowDataPacket} from "mysql2";
 import {db} from "../utils";
-import {AvailabilityProps} from "../models";
+import {AvailabilityProps, Calendar, ListCalendar} from "../models";
 import {RoleService} from "./role.service";
 import {AuthService} from "./auth.service";
 
@@ -18,7 +18,7 @@ export class AvailabilityService {
     private constructor() {
     }
 
-    public async getAll(){
+    public async getAll() {
         let sqlQuery: string = "SELECT * FROM availability";
         return new Promise<RowDataPacket[]>((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
@@ -30,11 +30,11 @@ export class AvailabilityService {
         });
     }
 
-    public async getById(id: number){
+    public async getById(id: number) {
         let sqlQuery = `SELECT * FROM availability WHERE id LIKE ${id}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
+                if (error) {
                     return reject(error)
                 }
                 return resolve(results);
@@ -42,11 +42,11 @@ export class AvailabilityService {
         }))
     }
 
-    public async getByUserId(userId: number){
+    public async getByUserId(userId: number) {
         let sqlQuery = `SELECT * FROM availability WHERE availability.idUser LIKE ${userId}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
+                if (error) {
                     return reject(error)
                 }
                 return resolve(results);
@@ -54,11 +54,55 @@ export class AvailabilityService {
         }))
     }
 
-    public async getByPostId(postId: number){
+    public async parseAvailability(idUser: number) {
+        let availabilityList = await AvailabilityService.getInstance().getByUserId(idUser);
+        let day = "";
+        let startHour = 0;
+        let endHour = 0;
+
+        if (availabilityList.length !== 0) {
+            day = availabilityList[0].day;
+            startHour = availabilityList[0].startHour;
+            endHour = availabilityList[0].endHour;
+        }
+        let listCalendat: ListCalendar = new ListCalendar([]);
+        for (let i = 0; i < 24; i++) {
+            let calendar: Calendar = new Calendar("", "", "", "", "", "", "");
+            if (i >= startHour && i <= endHour) {
+                switch (day) {
+                    case "lundi":
+                        calendar.lundi = "X"
+                        break;
+                    case "mardi":
+                        calendar.mardi = "X"
+                        break;
+                    case "mercredi":
+                        calendar.mercredi = "X"
+                        break;
+                    case "jeudi":
+                        calendar.jeudi = "X"
+                        break;
+                    case "vendredi":
+                        calendar.vendredi = "X"
+                        break;
+                    case "samedi":
+                        calendar.samedi = "X"
+                        break;
+                    case "dimanche":
+                        calendar.dimanche = "X"
+                        break;
+                }
+            }
+            listCalendat.listCalendar.push(calendar);
+        }
+        return listCalendat;
+    }
+
+    public async getByPostId(postId: number) {
         let sqlQuery = `SELECT * FROM availability WHERE availability.idPost LIKE ${postId}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
+                if (error) {
                     return reject(error)
                 }
                 return resolve(results);
@@ -66,37 +110,36 @@ export class AvailabilityService {
         }))
     }
 
-    public async add(availability: AvailabilityProps){
+    public async add(availability: AvailabilityProps) {
 
-        if(!availability.idUser && !availability.idPost){
+        if (!availability.idUser && !availability.idPost) {
             return Promise.reject("You must provide an idUser or idPost");
         }
 
-        if(availability.idUser && availability.idPost) {
+        if (availability.idUser && availability.idPost) {
             let idUser = availability.idUser;
             let role;
 
             role = await AuthService.getInstance().getRoleByUserId(idUser.toString());
 
-            if(role[0].role === "parent"){
+            if (role[0].role === "parent") {
                 return Promise.reject("Parent can't add availability on their profile");
             }
 
             let idPost = availability.idPost;
             let exist = await this.getByPostId(idPost);
 
-            if(exist){
+            if (exist) {
                 return Promise.reject("Availability already exist for this post");
             }
 
         }
 
 
-
         let sqlQuery = `INSERT INTO availability (idUser, idPost, day, startHour, endHour) VALUES (${availability.idUser}, ${availability.idPost}, '${availability.day}', '${availability.startHour}', '${availability.endHour}')`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
+                if (error) {
                     return reject(error)
                 }
                 return resolve(results);
@@ -104,16 +147,16 @@ export class AvailabilityService {
         }))
     }
 
-    public async update(availability: AvailabilityProps){
+    public async update(availability: AvailabilityProps) {
 
 
-        if(availability.idUser && availability.idPost) {
+        if (availability.idUser && availability.idPost) {
             let idUser = availability.idUser;
             let role;
 
             role = await AuthService.getInstance().getRoleByUserId(idUser.toString());
 
-            if(role[0].role === "parent"){
+            if (role[0].role === "parent") {
                 return Promise.reject("Parent can't add availability on their profile");
             }
 
@@ -121,10 +164,10 @@ export class AvailabilityService {
             let exist = await this.getByPostId(idPost);
 
             let cpt = 0;
-            while(exist[cpt]){
-                if(exist[cpt].id === availability.id){
+            while (exist[cpt]) {
+                if (exist[cpt].id === availability.id) {
                     cpt++;
-                }else{
+                } else {
                     return Promise.reject("Availability already exist for this post");
                 }
             }
@@ -134,7 +177,7 @@ export class AvailabilityService {
         let sqlQuery = `UPDATE availability SET idUser = ${availability.idUser}, idPost = ${availability.idPost}, day = '${availability.day}', startHour = '${availability.startHour}', endHour = '${availability.endHour}' WHERE id = ${availability.id}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
+                if (error) {
                     return reject(error)
                 }
                 return resolve(results);
@@ -142,11 +185,11 @@ export class AvailabilityService {
         }))
     }
 
-    public async delete(id: number){
+    public async delete(id: number) {
         let sqlQuery = `DELETE FROM availability WHERE id = ${id}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
+                if (error) {
                     return reject(error)
                 }
                 return resolve(results);
