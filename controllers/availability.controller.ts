@@ -78,7 +78,7 @@ export class AvailabilityController {
             });
             if (availability) {
                 res.send({
-                    response: availability
+                    response: true
                 });
             } else {
                 res.status(404).end();
@@ -111,6 +111,21 @@ export class AvailabilityController {
             res.status(401).end(); // unauthorized
         }
     }
+    async updateListAvailability(req: Request, res: Response) {
+        try {
+            await AvailabilityService.getInstance().updateListAvailabilityBabysitter({
+                id: req.body.id,
+                arrayAvaibality: req.body.arrayAvaibality
+            });
+        res.send({
+            response: true
+        });
+        } catch (err) {
+            console.log(err)
+            res.status(401).end(); // unauthorized
+        }
+
+    }
 
     async deleteAvailability(req: Request, res: Response) {
         try {
@@ -136,6 +151,7 @@ export class AvailabilityController {
         router.get('/getByPost/:idPost', this.getAvailabilityByPostId.bind(this));
         router.get('/getAvailabilityParseByUserId/:idUser', this.getAvailabilityParseByUserId.bind(this));
         router.post('/create', express.json(), this.createAvailability.bind(this));
+        router.put('/updateList', express.json(), this.updateListAvailability.bind(this));
         router.put('/update/:id', express.json(), this.updateAvailability.bind(this));
         router.delete('/delete/:id', express.json(), this.deleteAvailability.bind(this));
         return router;

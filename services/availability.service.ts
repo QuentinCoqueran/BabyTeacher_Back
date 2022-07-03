@@ -18,6 +18,18 @@ export class AvailabilityService {
     private constructor() {
     }
 
+    insertPromise = (sql: string) => {
+        return new Promise((resolve, reject) => {
+            db.query(sql, (error, results) => {
+                if (error) {
+                    console.log(error);
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    };
+
     public async getAll() {
         let sqlQuery: string = "SELECT * FROM availability";
         return new Promise<RowDataPacket[]>((resolve, reject) => {
@@ -56,43 +68,38 @@ export class AvailabilityService {
 
     public async parseAvailability(idUser: number) {
         let availabilityList = await AvailabilityService.getInstance().getByUserId(idUser);
-        let day = "";
-        let startHour = 0;
-        let endHour = 0;
 
-        if (availabilityList.length !== 0) {
-            day = availabilityList[0].day;
-            startHour = availabilityList[0].startHour;
-            endHour = availabilityList[0].endHour;
-        }
         let listCalendat: ListCalendar = new ListCalendar([]);
         for (let i = 0; i < 24; i++) {
             let calendar: Calendar = new Calendar("", "", "", "", "", "", "");
-            if (i >= startHour && i <= endHour) {
-                switch (day) {
-                    case "lundi":
-                        calendar.lundi = "X"
-                        break;
-                    case "mardi":
-                        calendar.mardi = "X"
-                        break;
-                    case "mercredi":
-                        calendar.mercredi = "X"
-                        break;
-                    case "jeudi":
-                        calendar.jeudi = "X"
-                        break;
-                    case "vendredi":
-                        calendar.vendredi = "X"
-                        break;
-                    case "samedi":
-                        calendar.samedi = "X"
-                        break;
-                    case "dimanche":
-                        calendar.dimanche = "X"
-                        break;
+            for (let availability of availabilityList) {
+                if (i >= availability.startHour && i <= availability.endHour) {
+                    switch (availability.day) {
+                        case "lundi":
+                            calendar.lundi = "X"
+                            break;
+                        case "mardi":
+                            calendar.mardi = "X"
+                            break;
+                        case "mercredi":
+                            calendar.mercredi = "X"
+                            break;
+                        case "jeudi":
+                            calendar.jeudi = "X"
+                            break;
+                        case "vendredi":
+                            calendar.vendredi = "X"
+                            break;
+                        case "samedi":
+                            calendar.samedi = "X"
+                            break;
+                        case "dimanche":
+                            calendar.dimanche = "X"
+                            break;
+                    }
                 }
             }
+
             listCalendat.listCalendar.push(calendar);
         }
         return listCalendat;
@@ -147,9 +154,20 @@ export class AvailabilityService {
         }))
     }
 
+    async updateListAvailabilityBabysitter(param: { arrayAvaibality: any, id: number }) {
+        let arrayAvaibality = param.arrayAvaibality;
+        for (let i = 0; i < arrayAvaibality.length; i++) {
+            let sql = `UPDATE availability SET day = '${arrayAvaibality[i].day}', startHour = ${arrayAvaibality[i].startHour}, endHour = ${arrayAvaibality[i].endHour} WHERE id = ${arrayAvaibality[i].id}`;
+            try {
+                await this.insertPromise(sql);
+            } catch (error) {
+                console.log(error);
+                throw new Error("Error in update session");
+            }
+        }
+    }
+
     public async update(availability: AvailabilityProps) {
-
-
         if (availability.idUser && availability.idPost) {
             let idUser = availability.idUser;
             let role;
