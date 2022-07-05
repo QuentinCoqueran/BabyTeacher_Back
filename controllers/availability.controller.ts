@@ -1,5 +1,6 @@
 import express, {Request, Response, Router} from "express";
 import {AvailabilityService} from "../services";
+import {checkUserConnected} from "../middlewares";
 
 export class AvailabilityController {
 
@@ -145,15 +146,15 @@ export class AvailabilityController {
 
     buildRoutes(): Router {
         const router = express.Router();
-        router.get('/all', this.getAll.bind(this));
-        router.get('/:id', this.getAvailabilityById.bind(this));
-        router.get('/getByUser/:idUser', this.getAvailabilityByUserId.bind(this));
-        router.get('/getByPost/:idPost', this.getAvailabilityByPostId.bind(this));
-        router.get('/getAvailabilityParseByUserId/:idUser', this.getAvailabilityParseByUserId.bind(this));
-        router.post('/create', express.json(), this.createAvailability.bind(this));
-        router.put('/updateList', express.json(), this.updateListAvailability.bind(this));
-        router.put('/update/:id', express.json(), this.updateAvailability.bind(this));
-        router.delete('/delete/:id', express.json(), this.deleteAvailability.bind(this));
+        router.get('/all', checkUserConnected(), this.getAll.bind(this));
+        router.get('/:id', checkUserConnected(), this.getAvailabilityById.bind(this));
+        router.get('/getByUser/:idUser', checkUserConnected(), this.getAvailabilityByUserId.bind(this));
+        router.get('/getByPost/:idPost', checkUserConnected(), this.getAvailabilityByPostId.bind(this));
+        router.get('/getAvailabilityParseByUserId/:idUser', checkUserConnected(), this.getAvailabilityParseByUserId.bind(this));
+        router.post('/create', express.json(), checkUserConnected(), this.createAvailability.bind(this));
+        router.put('/updateList', express.json(), checkUserConnected(), this.updateListAvailability.bind(this));
+        router.put('/update/:id', express.json(), checkUserConnected(), this.updateAvailability.bind(this));
+        router.delete('/delete/:id', checkUserConnected(), this.deleteAvailability.bind(this));
         return router;
     }
 

@@ -1,5 +1,6 @@
 import express, {Request, Response, Router} from "express";
 import {MessageService} from "../services";
+import {checkUserConnected} from "../middlewares";
 
 export class MessageController {
     async createMessage(req: Request, res: Response) {
@@ -61,11 +62,11 @@ export class MessageController {
 
     buildRoutes(): Router {
         const router = express.Router();
-        router.post('/save-message', express.json(), this.saveMessage.bind(this));
-        router.post('/create-session-message', express.json(), this.createMessage.bind(this));
-        router.get('/get-message/:id1/:id2', express.json(), this.getMessage.bind(this));
-        router.get('/get-all-messages-by-id/:id1', express.json(), this.getAllMessagesByIdUser.bind(this));
-        router.get('/is-message-exist/:id1/:id2', express.json(), this.isMessageExist.bind(this));
+        router.post('/save-message', express.json(), checkUserConnected(), this.saveMessage.bind(this));
+        router.post('/create-session-message', express.json(), checkUserConnected(), this.createMessage.bind(this));
+        router.get('/get-message/:id1/:id2', express.json(), checkUserConnected(), this.getMessage.bind(this));
+        router.get('/get-all-messages-by-id/:id1', express.json(), checkUserConnected(), this.getAllMessagesByIdUser.bind(this));
+        router.get('/is-message-exist/:id1/:id2', express.json(), checkUserConnected(), this.isMessageExist.bind(this));
         return router;
     }
 }

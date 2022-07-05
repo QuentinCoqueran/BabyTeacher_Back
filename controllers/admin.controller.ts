@@ -1,5 +1,6 @@
 import express, {Request, Response, Router} from "express";
 import {AuthService, CategorieService, PostService, SkillService} from "../services";
+import {checkAdminConnected} from "../middlewares/admin.middleware";
 
 export class AdminController {
 
@@ -293,25 +294,25 @@ export class AdminController {
 
     buildRoutes(): Router {
         const router = express.Router();
-        router.get("/users", this.getAllUsers.bind(this));
-        router.get("/users/:id", this.getUserById.bind(this));
-        router.get("/users/categories/:id", this.getUsersByCategoryId.bind(this));
-        router.get("/users/skills/:id", this.getUsersBySkillId.bind(this));
-        router.get("/posts", this.getAllPosts.bind(this));
-        router.get("/posts/:id", this.getPostById.bind(this));
-        router.get("/post/user/:id", this.getPostsByUserId.bind(this));
-        router.get("/posts/categories/:id", this.getPostsByCategoryId.bind(this));
-        router.get("/posts/skills/:id", this.getPostsBySkillId.bind(this));
-        router.get("/categories", this.getAllCategories.bind(this));
-        router.get("/categories/:id", this.getCategoryById.bind(this));
-        router.get("/skills", this.getAllSkills.bind(this));
-        router.get("/skills/:id", this.getSkillById.bind(this));
-        router.get("/skills/categories/:id", this.getSkillsByCategoryId.bind(this));
+        router.get("/users", checkAdminConnected(), this.getAllUsers.bind(this));
+        router.get("/users/:id", checkAdminConnected(), this.getUserById.bind(this));
+        router.get("/users/categories/:id", checkAdminConnected(), this.getUsersByCategoryId.bind(this));
+        router.get("/users/skills/:id", checkAdminConnected(), this.getUsersBySkillId.bind(this));
+        router.get("/posts", checkAdminConnected(), this.getAllPosts.bind(this));
+        router.get("/posts/:id", checkAdminConnected(), this.getPostById.bind(this));
+        router.get("/post/user/:id", checkAdminConnected(), this.getPostsByUserId.bind(this));
+        router.get("/posts/categories/:id", checkAdminConnected(), this.getPostsByCategoryId.bind(this));
+        router.get("/posts/skills/:id", checkAdminConnected(), this.getPostsBySkillId.bind(this));
+        router.get("/categories", checkAdminConnected(), this.getAllCategories.bind(this));
+        router.get("/categories/:id", checkAdminConnected(), this.getCategoryById.bind(this));
+        router.get("/skills", checkAdminConnected(), this.getAllSkills.bind(this));
+        router.get("/skills/:id", checkAdminConnected(), this.getSkillById.bind(this));
+        router.get("/skills/categories/:id", checkAdminConnected(), this.getSkillsByCategoryId.bind(this));
 
-        router.delete("/users/delete/:id", this.deleteUserById.bind(this));
-        router.delete("/posts/delete/:id", this.deletePostById.bind(this));
-        router.delete("/categories/delete/:id", this.deleteCategorieById.bind(this));
-        router.delete("/skills/delete/:id", this.deleteSkillById.bind(this));
+        router.delete("/users/delete/:id", checkAdminConnected(), this.deleteUserById.bind(this));
+        router.delete("/posts/delete/:id", checkAdminConnected(), this.deletePostById.bind(this));
+        router.delete("/categories/delete/:id", checkAdminConnected(), this.deleteCategorieById.bind(this));
+        router.delete("/skills/delete/:id", checkAdminConnected(), this.deleteSkillById.bind(this));
 
         return router;
     }
