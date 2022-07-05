@@ -1,5 +1,6 @@
 import express, {Request, Response, Router} from "express";
 import {CommentService} from "../services";
+import {checkUserConnected} from "../middlewares";
 
 
 export class CommentController {
@@ -122,13 +123,13 @@ export class CommentController {
 
     buildRoutes(): Router {
         const router = express.Router();
-        router.get('/all', this.getAll.bind(this));
-        router.get('/:id', this.getById.bind(this));
-        router.get('/getByUser/:idUserComment', this.getByUserComment.bind(this));
-        router.get('/getByProfile/:idProfile', this.getCommentByProfile.bind(this));
-        router.post('/create', express.json(), this.createComment.bind(this));
-        router.put('/update/:id', express.json(), this.updateComment.bind(this));
-        router.delete('/delete/:id', this.deleteComment.bind(this));
+        router.get('/all', checkUserConnected(), this.getAll.bind(this));
+        router.get('/:id', checkUserConnected(), this.getById.bind(this));
+        router.get('/getByUser/:idUserComment', checkUserConnected(), this.getByUserComment.bind(this));
+        router.get('/getByProfile/:idProfile', checkUserConnected(), this.getCommentByProfile.bind(this));
+        router.post('/create', express.json(), checkUserConnected(), this.createComment.bind(this));
+        router.put('/update/:id', express.json(), checkUserConnected(), this.updateComment.bind(this));
+        router.delete('/delete/:id', checkUserConnected(), this.deleteComment.bind(this));
         return router;
     }
 

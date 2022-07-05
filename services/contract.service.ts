@@ -65,7 +65,7 @@ export class ContractService {
     }
 
     public async add(contract: ContractProps){
-        let sqlQuery = `INSERT INTO contracts (idParent, idBabysitter, validateAt, numberOfHours, hourlyWage, qrCode, numberOfSitting, numberOfAttendance, startDate, endDate) VALUES (${contract.idParent}, ${contract.idBabysitter}, '${contract.validateAt}', ${contract.numberOfHours}, ${contract.hourlyWage}, '${contract.qrCode}', ${contract.numberOfSitting}, ${contract.numberOfAttendance}, '${contract.startDate}', '${contract.endDate}')`
+        let sqlQuery = `INSERT INTO contracts (idParent, idBabysitter, validateAt, numberOfHours, hourlyWage, qrCode, numberOfSitting, numberOfHoursDone, startDate, endDate) VALUES (${contract.idParent}, ${contract.idBabysitter}, '${contract.validateAt}', ${contract.numberOfHours}, ${contract.hourlyWage}, '${contract.qrCode}', ${contract.numberOfSitting}, ${contract.numberOfHoursDone}, '${contract.startDate}', '${contract.endDate}')`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if(error){
@@ -77,7 +77,7 @@ export class ContractService {
     }
 
     public async update(contract: ContractProps){
-        let sqlQuery = `UPDATE contracts SET idParent = ${contract.idParent}, idBabysitter = ${contract.idBabysitter}, validateAt = '${contract.validateAt}', numberOfHours = ${contract.numberOfHours}, hourlyWage = ${contract.hourlyWage}, qrCode = '${contract.qrCode}', numberOfSitting = ${contract.numberOfSitting}, numberOfAttendance = ${contract.numberOfAttendance}, startDate = '${contract.startDate}', endDate = '${contract.endDate}' WHERE id = ${contract.id}`
+        let sqlQuery = `UPDATE contracts SET idParent = ${contract.idParent}, idBabysitter = ${contract.idBabysitter}, validateAt = '${contract.validateAt}', numberOfHours = ${contract.numberOfHours}, hourlyWage = ${contract.hourlyWage}, qrCode = '${contract.qrCode}', numberOfSitting = ${contract.numberOfSitting}, numberOfAttendance = ${contract.numberOfHoursDone}, startDate = '${contract.startDate}', endDate = '${contract.endDate}' WHERE id = ${contract.id}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if(error){

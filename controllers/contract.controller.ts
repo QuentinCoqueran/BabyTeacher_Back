@@ -1,5 +1,6 @@
 import express, {Request, Response, Router} from "express";
 import {ContractService} from "../services";
+import {checkUserConnected} from "../middlewares";
 
 export class ContractController {
 
@@ -67,7 +68,7 @@ export class ContractController {
                 numberOfHours: req.body.numberOfHours,
                 hourlyWage: req.body.hourlyWage,
                 numberOfSitting: req.body.numberOfSitting,
-                numberOfAttendance: req.body.numberOfAttendance,
+                numberOfHoursDone: req.body.numberOfHoursDone,
                 startDate: req.body.startDate,
                 endDate: req.body.endDate
             });
@@ -94,7 +95,7 @@ export class ContractController {
                 numberOfHours: req.body.numberOfHours,
                 hourlyWage: req.body.hourlyWage,
                 numberOfSitting: req.body.numberOfSitting,
-                numberOfAttendance: req.body.numberOfAttendance,
+                numberOfHoursDone: req.body.numberOfHoursDone,
                 startDate: req.body.startDate,
                 endDate: req.body.endDate
             });
@@ -129,13 +130,13 @@ export class ContractController {
 
     buildRoutes(): Router {
         const router = express.Router();
-        router.get('/all', this.getAll.bind(this));
-        router.get('/:id', this.getById.bind(this));
-        router.get('/getByParent/:idParent', this.getContractByParentId.bind(this));
-        router.get('/getByBabysitter/:idBabysitter', this.getContractByBabysitterId.bind(this));
-        router.post('/create', express.json(), this.createContract.bind(this));
-        router.put('/update', express.json(), this.updateContract.bind(this));
-        router.delete('/delete', express.json(), this.deleteContract.bind(this));
+        router.get('/all', checkUserConnected(), this.getAll.bind(this));
+        router.get('/:id', checkUserConnected(), this.getById.bind(this));
+        router.get('/getByParent/:idParent', checkUserConnected(), this.getContractByParentId.bind(this));
+        router.get('/getByBabysitter/:idBabysitter', checkUserConnected(), this.getContractByBabysitterId.bind(this));
+        router.post('/create', express.json(), checkUserConnected(), this.createContract.bind(this));
+        router.put('/update', express.json(), checkUserConnected(), this.updateContract.bind(this));
+        router.delete('/delete', checkUserConnected(), this.deleteContract.bind(this));
         return router;
     }
 }

@@ -76,4 +76,15 @@ export class CategorieService {
         }))
     }
 
+    async getUsersByCategoryId(id: number) {
+        let sqlQuery = `SELECT * FROM users WHERE category_id LIKE ${id}`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
 }

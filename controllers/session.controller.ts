@@ -1,5 +1,6 @@
 import express, {Request, Response} from "express";
 import {SessionService} from "../services";
+import {checkUserConnected} from "../middlewares";
 
 export class SessionController {
     async getAll(req: Request, res: Response) {
@@ -126,13 +127,13 @@ export class SessionController {
 
     buildRoutes() {
         const router = express.Router();
-        router.get('/all', this.getAll.bind(this));
-        router.get('/:id', this.getById.bind(this));
-        router.get('/getByUser/:idUser', this.getByUser.bind(this));
-        router.get('/getByToken/:token', this.getByToken.bind(this));
-        router.post('/create', express.json(), this.createSession.bind(this));
-        router.put('/edit/:id', express.json(), this.updateSession.bind(this));
-        router.delete('/delete/:id', express.json(), this.deleteSession.bind(this));
+        router.get('/all', checkUserConnected(), this.getAll.bind(this));
+        router.get('/:id', checkUserConnected(), this.getById.bind(this));
+        router.get('/getByUser/:idUser', checkUserConnected(), this.getByUser.bind(this));
+        router.get('/getByToken/:token', checkUserConnected(), this.getByToken.bind(this));
+        router.post('/create', express.json(), checkUserConnected(), this.createSession.bind(this));
+        router.put('/edit/:id', express.json(), checkUserConnected(), this.updateSession.bind(this));
+        router.delete('/delete/:id', checkUserConnected(), this.deleteSession.bind(this));
         return router;
     }
 

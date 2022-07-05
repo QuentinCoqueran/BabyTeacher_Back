@@ -15,7 +15,7 @@ import {
     SignalementController,
     AvailabilityController,
     CommentController,
-    ContractController
+    ContractController, AdminController
 } from "./controllers";
 
 import {db} from "./utils/mysql.connector";
@@ -82,6 +82,9 @@ async function startServer(): Promise<void> {
 
     const signalementController = new SignalementController();
     app.use('/signalement', signalementController.buildRoutes());
+
+    const adminController = new AdminController();
+    app.use('/admin', adminController.buildRoutes());
 
     io.on('connection', (socket: any) => {
         socket.on('createRoom', async (data: any) => {

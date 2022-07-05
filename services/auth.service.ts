@@ -304,6 +304,92 @@ export class AuthService {
             });
         });
     }
+
+    async getUsersByCategoryId(categorieId: number) {
+        let sql = `SELECT * FROM users`;
+        let users = await new Promise<RowDataPacket[]>((resolve, reject) => {
+            db.query(sql, (error, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+
+                return resolve(results);
+
+            });
+        });
+
+        for (let i = 0; i < users.length; i++) {
+            let sqlSkill = `SELECT * FROM skills WHERE idUser = ${users[i].id}`;
+            let skills = await new Promise<RowDataPacket[]>((resolve, reject) => {
+                db.query(sqlSkill, (error, results: RowDataPacket[]) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                });
+            });
+
+            let flag = false;
+            for (let j = 0; j < skills.length; j++) {
+                if (skills[j].idCategorie === categorieId) {
+                    flag = true;
+                }
+            }
+            if (!flag) {
+                users.splice(i, 1);
+                i--;
+            }
+        }
+        return users;
+    }
+
+    async getUsersBySkillId(skillId: number) {
+        let sql = `SELECT * FROM users`;
+        let users = await new Promise<RowDataPacket[]>((resolve, reject) => {
+            db.query(sql, (error, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+
+                return resolve(results);
+
+            });
+        });
+
+        for (let i = 0; i < users.length; i++) {
+            let sqlSkill = `SELECT * FROM skills WHERE idUser = ${users[i].id}`;
+            let skills = await new Promise<RowDataPacket[]>((resolve, reject) => {
+                db.query(sqlSkill, (error, results: RowDataPacket[]) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                });
+            });
+
+            for (let j = 0; j < skills.length; j++) {
+                if (skills[j].id !== skillId) {
+                    users.splice(i, 1);
+                    i--;
+                    break;
+                }
+            }
+        }
+        return users;
+    }
+
+
+    async deleteUser(userId: number) {
+        let sql = `DELETE FROM users WHERE id = ${userId}`;
+        return new Promise<RowDataPacket[]>((resolve, reject) => {
+            db.query(sql, (error, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    }
 }
 
 

@@ -1,5 +1,6 @@
 import {RoleService} from "../services";
 import express, {Request, Response} from "express";
+import {checkUserConnected} from "../middlewares";
 
 export class RoleController {
     async getAll(req: Request, res: Response) {
@@ -105,12 +106,12 @@ export class RoleController {
 
     buildRoutes() {
         const router = express.Router();
-        router.get('/all', this.getAll.bind(this));
-        router.get('/:id', this.getById.bind(this));
-        router.get('/getByRole/:role', this.getRoleByRole.bind(this));
-        router.post('/create', express.json(), this.createRole.bind(this));
-        router.put('/edit/:id', express.json(), this.updateRole.bind(this));
-        router.delete('/delete/:id', express.json(), this.deleteRole.bind(this));
+        router.get('/all', checkUserConnected(), this.getAll.bind(this));
+        router.get('/:id', checkUserConnected(), this.getById.bind(this));
+        router.get('/getByRole/:role', checkUserConnected(), this.getRoleByRole.bind(this));
+        router.post('/create', express.json(), checkUserConnected(), this.createRole.bind(this));
+        router.put('/edit/:id', express.json(), checkUserConnected(), this.updateRole.bind(this));
+        router.delete('/delete/:id', checkUserConnected(), this.deleteRole.bind(this));
         return router;
     }
 

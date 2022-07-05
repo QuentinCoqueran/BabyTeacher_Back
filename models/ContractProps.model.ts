@@ -7,7 +7,7 @@ export interface ContractProps {
     hourlyWage: number,
     qrCode?: number,
     numberOfSitting: number,
-    numberOfAttendance: number,
+    numberOfHoursDone: number,
     startDate: number,
     endDate: number
 }

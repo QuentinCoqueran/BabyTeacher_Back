@@ -38,7 +38,7 @@ export class CategorieController {
 
     async getSkillByCategorie(req: Request, res: Response) {
         try {
-            const skills = await SkillService.getInstance().getByCategorie(req.params.idCategorie);
+            const skills = await SkillService.getInstance().getByCategorie(parseInt(<string>req.params.idCategorie));
             res.send({
                 response: skills
             });
@@ -124,13 +124,13 @@ export class CategorieController {
 
     buildRoutes(): Router {
         const router = express.Router();
-        router.get('/getAllCategories', this.getAll.bind(this));
-        router.get('/getSkillsByUserLogin/:login', this.getSkillByUser.bind(this));
-        router.get('/getSkillsByCategorieId/:idCategorie', this.getSkillByCategorie.bind(this));
+        router.get('/getAllCategories', checkUserConnected(), this.getAll.bind(this));
+        router.get('/getSkillsByUserLogin/:login', checkUserConnected(), this.getSkillByUser.bind(this));
+        router.get('/getSkillsByCategorieId/:idCategorie', checkUserConnected(), this.getSkillByCategorie.bind(this));
         router.get('/:id',this.getById.bind(this));
-        router.post('/create', express.json(), this.createCategorie.bind(this));
-        router.put('/update/:id', express.json(), this.updateCategorie.bind(this));
-        router.delete('/delete/:id', express.json(), this.deleteCategorie.bind(this));
+        router.post('/create', express.json(), checkUserConnected(), this.createCategorie.bind(this));
+        router.put('/update/:id', express.json(), checkUserConnected(), this.updateCategorie.bind(this));
+        router.delete('/delete/:id', checkUserConnected(), this.deleteCategorie.bind(this));
 
         return router;
     }

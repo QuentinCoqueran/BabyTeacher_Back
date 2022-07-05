@@ -1,5 +1,6 @@
 import express, {Request, Response} from "express";
 import {SignalementService} from "../services";
+import {checkUserConnected} from "../middlewares";
 
 export class SignalementController{
 
@@ -127,13 +128,13 @@ export class SignalementController{
 
     buildRoutes() {
         const router = express.Router();
-        router.get('/all', this.getAll.bind(this));
-        router.get('/:id', this.getById.bind(this));
-        router.get('/getByProfile/:idProfile', this.getSignalementByProfile.bind(this));
-        router.get('/getBySignaler/:idSignaler', this.getSignalementBySignaler.bind(this));
-        router.post('/create', express.json(), this.createSignalement.bind(this));
-        router.put('/edit/:id', express.json(), this.updateSignalement.bind(this));
-        router.delete('/delete/:id', express.json(), this.deleteSignalement.bind(this));
+        router.get('/all', checkUserConnected(), this.getAll.bind(this));
+        router.get('/:id', checkUserConnected(), this.getById.bind(this));
+        router.get('/getByProfile/:idProfile', checkUserConnected(), this.getSignalementByProfile.bind(this));
+        router.get('/getBySignaler/:idSignaler', checkUserConnected(), this.getSignalementBySignaler.bind(this));
+        router.post('/create', express.json(), checkUserConnected(), this.createSignalement.bind(this));
+        router.put('/edit/:id', express.json(), checkUserConnected(), this.updateSignalement.bind(this));
+        router.delete('/delete/:id', checkUserConnected(), this.deleteSignalement.bind(this));
         return router;
     }
 
