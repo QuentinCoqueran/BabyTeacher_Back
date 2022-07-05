@@ -1,6 +1,7 @@
 import {QueryError, RowDataPacket} from "mysql2";
 import {db} from "../utils/mysql.connector";
 import {PostProps} from "../models";
+import {AuthService} from "./auth.service";
 
 export class PostService {
 
@@ -197,4 +198,53 @@ export class PostService {
         }))
     }
 
+    async getByCategory(categorieId: number) {
+        let sqlQuery = `SELECT * FROM posts WHERE posts.idCategory LIKE ${categorieId}`;
+        let posts = await new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error);
+                }
+                return resolve(results);
+            })
+        }));
+
+        let users = await AuthService.getInstance().getUsersByCategoryId(categorieId);
+
+        for (let i = 0; i < posts.length; i++) {
+            let user = await AuthService.getInstance().getUserById(posts[i].idUser);
+            if(!users.includes(user[0])){
+                posts.splice(i, 1);
+                i--;
+            }
+        }
+
+        return posts;
+
+    }
+
+    async getBySkill(skillId: number) {
+        let sqlQuery = `SELECT * FROM posts WHERE posts.idSkill LIKE ${skillId}`;
+        let posts = await new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error);
+                }
+                return resolve(results);
+            })
+        }));
+
+        let users = await AuthService.getInstance().getUsersBySkillId(skillId);
+
+        for (let i = 0; i < posts.length; i++) {
+            let user = await AuthService.getInstance().getUserById(posts[i].idUser);
+            if(!users.includes(user[0])){
+                posts.splice(i, 1);
+                i--;
+            }
+        }
+
+        return posts;
+
+    }
 }
