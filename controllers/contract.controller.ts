@@ -68,7 +68,7 @@ export class ContractController {
                 numberOfHours: req.body.numberOfHours,
                 hourlyWage: req.body.hourlyWage,
                 numberOfSitting: req.body.numberOfSitting,
-                numberOfAttendance: req.body.numberOfAttendance,
+                numberOfHoursDone: req.body.numberOfHoursDone,
                 startDate: req.body.startDate,
                 endDate: req.body.endDate
             });
@@ -95,7 +95,7 @@ export class ContractController {
                 numberOfHours: req.body.numberOfHours,
                 hourlyWage: req.body.hourlyWage,
                 numberOfSitting: req.body.numberOfSitting,
-                numberOfAttendance: req.body.numberOfAttendance,
+                numberOfHoursDone: req.body.numberOfHoursDone,
                 startDate: req.body.startDate,
                 endDate: req.body.endDate
             });
