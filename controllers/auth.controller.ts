@@ -83,7 +83,6 @@ export class AuthController {
 
     async getRoleByUserId(req: Request, res: Response) {
         try {
-            console.log(req.params)
             if (req.params) {
                 const role = await AuthService.getInstance().getRoleByUserId(req.params.id_user);
                 res.json(role);
@@ -92,6 +91,19 @@ export class AuthController {
             }
         } catch (err) {
             res.json(null);
+        }
+    }
+
+    async getUserById(req: Request, res: Response) {
+        try {
+            if (req.params) {
+                const user = await AuthService.getInstance().getUserById(parseInt(req.params.id));
+                res.json(user);
+            } else {
+                res.json(null);
+            }
+        } catch (err) {
+            res.json(err);
         }
     }
 
@@ -204,6 +216,7 @@ export class AuthController {
         router.get('/getRoleByUserId/:id_user', this.getRoleByUserId.bind(this));
         router.get('/getUserLogin/:login', express.json(), this.getUserLogin.bind(this));
         router.get('/getFirstConnexion', checkUserConnected(), this.getFirstConnexion.bind(this));
+        router.get('/getUserById/:id', checkUserConnected(), this.getUserById.bind(this));
         router.get('/getAllUsers', express.json(), this.getAllUsers.bind(this));
         router.delete('/deleteSkillsBabysitter/:id', express.json(), this.deleteSkillsBabysitter.bind(this));
         return router;

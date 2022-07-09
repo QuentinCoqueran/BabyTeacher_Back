@@ -19,14 +19,12 @@ export class ContractController {
     async getById(req: Request, res: Response) {
         let contract;
         try {
-            if (req.query.id) {
-                contract = await ContractService.getInstance().getById(parseInt(<string>req.params.id));
-            }
+            contract = await ContractService.getInstance().getById(parseInt(<string>req.params.id), req.user?.id);
             if (contract) {
                 res.send({
-                    response: contract
+                    response: contract[0]
                 });
-            }else {
+            } else {
                 res.status(404).end();
             }
         } catch (err) {
@@ -68,15 +66,16 @@ export class ContractController {
                 numberOfHours: req.body.numberOfHours,
                 hourlyWage: req.body.hourlyWage,
                 numberOfSitting: req.body.numberOfSitting,
-                numberOfHoursDone: req.body.numberOfHoursDone,
+                numberOfHoursDone: req.body.numberOfHourDone,
                 startDate: req.body.startDate,
-                endDate: req.body.endDate
+                endDate: req.body.endDate,
+                step: req.body.step
             });
             if (contract) {
                 res.send({
-                    response: contract
+                    response: true
                 });
-            }else {
+            } else {
                 res.status(404).end();
             }
         } catch (err) {
@@ -97,13 +96,14 @@ export class ContractController {
                 numberOfSitting: req.body.numberOfSitting,
                 numberOfHoursDone: req.body.numberOfHoursDone,
                 startDate: req.body.startDate,
-                endDate: req.body.endDate
+                endDate: req.body.endDate,
+                step: req.body.step
             });
             if (contract) {
                 res.send({
                     response: contract
                 });
-            }else {
+            } else {
                 res.status(404).end();
             }
         } catch (err) {
@@ -119,7 +119,7 @@ export class ContractController {
                 res.send({
                     response: contract
                 });
-            }else {
+            } else {
                 res.status(404).end();
             }
         } catch (err) {
@@ -128,15 +128,68 @@ export class ContractController {
         }
     }
 
+    //update contract step
+    async updateContractStep(req: Request, res: Response) {
+        try {
+            const contract = await ContractService.getInstance().updateStep(parseInt(req.body.id), req.body.step);
+            if (contract) {
+                res.send({
+                    response: contract
+                });
+            } else {
+                res.status(404).end();
+            }
+        } catch (err) {
+            console.log(err)
+            res.status(401).end(); // unauthorized
+        }
+    }
+
+    async stripe(req: Request, res: Response) {
+        const stripe = require('stripe')('sk_test_51LJduaAGkSy9SO1ICDek5Ky1csMtQxWn76bhQm8bHSAO6CkCUQ9jGwzt2JIx0MaDvdxsnEfuA2xtOE8QtF2PFKSw00RB93uctu');
+        try {
+            let token = req.body
+
+            const customer = stripe.customers
+                .create({
+                    email: token.email,
+                    source: token.id
+                })
+                .then((customer: any) => {
+                    return stripe.charges.create({
+                        amount: token.amount,
+                        description: "Test Purchase using express and Node",
+                        currency: "USD",
+                        customer: customer.id,
+                    });
+                })
+                .then((charge: any) => {
+                    res.json({
+                        data: "success"
+                    })
+                })
+                .catch((err: any) => {
+                    res.json({
+                        data: "failure",
+                    });
+                });
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
     buildRoutes(): Router {
         const router = express.Router();
         router.get('/all', checkUserConnected(), this.getAll.bind(this));
-        router.get('/:id', checkUserConnected(), this.getById.bind(this));
+        router.get('/getById/:id', checkUserConnected(), this.getById.bind(this));
         router.get('/getByParent/:idParent', checkUserConnected(), this.getContractByParentId.bind(this));
         router.get('/getByBabysitter/:idBabysitter', checkUserConnected(), this.getContractByBabysitterId.bind(this));
         router.post('/create', express.json(), checkUserConnected(), this.createContract.bind(this));
         router.put('/update', express.json(), checkUserConnected(), this.updateContract.bind(this));
+        router.put('/updateContractStep', express.json(), checkUserConnected(), this.updateContractStep.bind(this));
         router.delete('/delete', checkUserConnected(), this.deleteContract.bind(this));
+        router.post('/stripe', express.json(), this.stripe.bind(this));
         return router;
     }
 }
