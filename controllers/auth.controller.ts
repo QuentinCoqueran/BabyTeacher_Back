@@ -98,7 +98,9 @@ export class AuthController {
         try {
             if (req.params) {
                 const user = await AuthService.getInstance().getUserById(parseInt(req.params.id));
-                res.json(user);
+                res.json({
+                    response: user
+                });
             } else {
                 res.json(null);
             }
