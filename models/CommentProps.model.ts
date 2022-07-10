@@ -2,7 +2,7 @@ export interface CommentProps {
     id?: number,
     idProfile: number,
     idUserComment: number,
-    date: string,
+    date: Date,
     content: string,
     note: number
 }

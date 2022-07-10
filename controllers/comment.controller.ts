@@ -52,14 +52,14 @@ export class CommentController {
         try {
             const comment = await CommentService.getInstance().add({
                 idProfile: req.body.idProfile,
-                idUserComment: req.body.idUserComment,
+                idUserComment:  req.user?.id,
                 date: req.body.date,
                 content: req.body.content,
                 note: req.body.note
             });
             if (comment) {
                 res.send({
-                    response: comment
+                    response: true
                 });
             }else {
                 res.status(404).end();

@@ -94,8 +94,9 @@ async function startServer(): Promise<void> {
             io.sockets.in(data.userId).emit('eventToClient', {idUser: data.idUser, message: data.message});
         });
     });
+    
     httpServer.listen(port, () => console.log(`Listening on port ${port}`));
-
 }
+
 
 startServer().catch(console.error);
