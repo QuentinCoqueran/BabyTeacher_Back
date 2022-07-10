@@ -90,37 +90,17 @@ export class AvailabilityController {
         }
     }
 
-    async updateAvailability(req: Request, res: Response) {
-        try {
-            const availability = await AvailabilityService.getInstance().update({
-                id: parseInt(<string>req.params.id),
-                idUser: req.body.idUser,
-                idPost: req.body.idPost,
-                day: req.body.day,
-                startHour: req.body.startHour,
-                endHour: req.body.endHour
-            });
-            if (availability) {
-                res.send({
-                    response: availability
-                });
-            } else {
-                res.status(404).end();
-            }
-        } catch (err) {
-            console.log(err)
-            res.status(401).end(); // unauthorized
-        }
-    }
     async updateListAvailability(req: Request, res: Response) {
         try {
-            await AvailabilityService.getInstance().updateListAvailabilityBabysitter({
-                id: req.body.id,
-                arrayAvaibality: req.body.arrayAvaibality
+            if (req.user) {
+                await AvailabilityService.getInstance().updateListAvailabilityBabysitter({
+                    arrayAvaibality: req.body.arrayAvaibality,
+                    idUser: req.user.id
+                });
+            }
+            res.send({
+                response: true
             });
-        res.send({
-            response: true
-        });
         } catch (err) {
             console.log(err)
             res.status(401).end(); // unauthorized
@@ -153,7 +133,6 @@ export class AvailabilityController {
         router.get('/getAvailabilityParseByUserId/:idUser', checkUserConnected(), this.getAvailabilityParseByUserId.bind(this));
         router.post('/create', express.json(), checkUserConnected(), this.createAvailability.bind(this));
         router.put('/updateList', express.json(), checkUserConnected(), this.updateListAvailability.bind(this));
-        router.put('/update/:id', express.json(), checkUserConnected(), this.updateAvailability.bind(this));
         router.delete('/delete/:id', checkUserConnected(), this.deleteAvailability.bind(this));
         return router;
     }
