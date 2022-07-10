@@ -133,25 +133,35 @@ export class AvailabilityService {
                 return Promise.reject("Parent can't add availability on their profile");
             }
 
-            let idPost = availability.idPost;
-            let exist = await this.getByPostId(idPost);
+            let userAvailability = await this.getByUserId(availability.idUser);
+            let exist = false;
+
+            for (let av of userAvailability) {
+
+                if (av.day === availability.day) {
+                    exist = true;
+                    break;
+                }
+            }
 
             if (exist) {
-                return Promise.reject("Availability already exist for this post");
+                return Promise.reject("Availability already exist for this date");
             }
+
+            let sqlQuery = `INSERT INTO availability (idUser, idPost, day, startHour, endHour) VALUES (${availability.idUser}, ${availability.idPost}, '${availability.day}', '${availability.startHour}', '${availability.endHour}')`
+            return new Promise<RowDataPacket[]>(((resolve, reject) => {
+                db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                    if (error) {
+                        return reject(error)
+                    }
+                    return resolve(results);
+                })
+            }))
 
         }
 
 
-        let sqlQuery = `INSERT INTO availability (idUser, idPost, day, startHour, endHour) VALUES (${availability.idUser}, ${availability.idPost}, '${availability.day}', '${availability.startHour}', '${availability.endHour}')`
-        return new Promise<RowDataPacket[]>(((resolve, reject) => {
-            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if (error) {
-                    return reject(error)
-                }
-                return resolve(results);
-            })
-        }))
+
     }
 
     async updateListAvailabilityBabysitter(param: { arrayAvaibality: any, idUser: number }) {
