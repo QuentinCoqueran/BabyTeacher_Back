@@ -3,6 +3,7 @@ import {db} from "../utils/mysql.connector";
 import {PostProps} from "../models";
 import {AuthService} from "./auth.service";
 import {AvailabilityService} from "./availability.service";
+import {type} from "os";
 
 export class PostService {
 
@@ -248,10 +249,12 @@ export class PostService {
     async searchPost(param: { activityZone: any; skill: any; availability: any; category: any, role: string }) {
         let posts = [];
         let postsByactivityZone = [];
-        let postByAvailability = [];
+        let postByAvailabilityParent = [];
+        let postByAvailabilitBabysitter = [];
         let currentPosts: RowDataPacket[] = [];
-        let last = [];
-
+        let last: RowDataPacket[] = [];
+        let postBySkilCategory = [];
+        let postBySkills = [];
         if (param.role === 'babysitter') {
             for (let i = 0; i < param.activityZone.length; i++) {
                 //get all posts by activityZone
@@ -266,26 +269,15 @@ export class PostService {
                 posts.push(result)
             }
         }
-
         for (let i = 0; i < posts.length; i++) {
             for (let j = 0; j < posts[i].length; j++) {
-                if (param.role === 'parent') {
-                    if (posts[i][j].type === 'babysitter') {
-                        postsByactivityZone.push(posts[i][j]);
-                    }
-                }
-                if (param.role === 'babysitter') {
-                    if (posts[i][j].type === 'parent') {
-                        postsByactivityZone.push(posts[i][j]);
-                    }
-                }
+                postsByactivityZone.push(posts[i][j]);
             }
         }
         //si pas de post par activityZone et role return null
         if (postsByactivityZone.length <= 0) {
             return null;
         }
-
         //get posts by availability
         if (param.role === "parent") {
             //liste de index a supprimer
@@ -300,47 +292,90 @@ export class PostService {
                     }
                 }
                 if (checkPostAvailability) {
-                    postByAvailability.push(postsByactivityZone[i]);
+                    postByAvailabilityParent.push(postsByactivityZone[i]);
                 }
             }
         }
-        // parent recherche babysitter = postByAvailability on a les post trie par activityZone et availability si parent et par rapport au role
-        // babysitter recherche parent = postsByactivityZone on a les post trie par activityZone  si babysitter et par rapport au role
         if (param.role === "babysitter") {
-            currentPosts = postsByactivityZone;
+            //liste de index a supprimer
+            for (let i = 0; i < postsByactivityZone.length; i++) {
+                let checkPostAvailability: boolean = false;
+                let postAvaibality = await AvailabilityService.getInstance().getByPostId(postsByactivityZone[i].idPost);
+                if (postAvaibality !== null) {
+                    for (let j = 0; j < postAvaibality.length; j++) {
+                        if (param.availability.includes(postAvaibality[j].day)) {
+                            checkPostAvailability = true;
+                        }
+                    }
+                }
+                if (checkPostAvailability) {
+                    postByAvailabilitBabysitter.push(postsByactivityZone[i]);
+                }
+            }
+        }
+        if (param.role === "babysitter") {
+            currentPosts = postByAvailabilitBabysitter;
         }
         if (param.role === "parent") {
-            currentPosts = postByAvailability;
+            currentPosts = postByAvailabilityParent;
         }
-
         for (let i = 0; i < currentPosts.length; i++) {
             for (let j = 0; j < param.skill.length; j++) {
-                let postBySkills = await this.getPostBySkillById(currentPosts[i].id, param.skill[j]);
-                if (postBySkills !== null) {
-                    last.push(postBySkills);
-                }
+                let result = await this.getPostBySkillById(currentPosts[i].idPost, param.skill[j])
+                postBySkills.push(result);
             }
         }
         for (let i = 0; i < currentPosts.length; i++) {
             for (let j = 0; j < param.category.length; j++) {
-                let postBySkilCategory = await this.getPostByCategoryById(currentPosts[i].id, param.category[j])
-                if (postBySkilCategory !== null) {
-                    let checkPost: boolean = true;
-                    for (let y = 0; y < last.length; y++) {
-                        if (postBySkilCategory[0].id === last[0][y].id) {
-                            checkPost = false;
-                        }
+                let result = await this.getPostByCategoryById(currentPosts[i].idPost, param.category[j])
+                postBySkilCategory.push(result);
+            }
+        }
+
+        // 100% de correspondance
+        this.pushInArray(postBySkills, last);
+        // 75% de correspondance
+        this.pushInArray(postBySkilCategory, last);
+        // 50% de correspondance
+        this.pushInArray(currentPosts, last);
+        // 25% de correspondance
+        this.pushInArray(postsByactivityZone, last);
+        // 25 % de correspondance
+        if (param.role === "babysitter") {
+            this.pushInArray(postByAvailabilitBabysitter, last);
+        }
+        if (param.role === "parent") {
+            this.pushInArray(postByAvailabilityParent, last);
+        }
+        return last;
+    }
+
+    pushInArray(current: any[], last: RowDataPacket[]) {
+        if (current[0].idPost === undefined) {
+            current = current[0];
+        }
+        if (current.length > 0) {
+            for (let i = 0; i < current.length; i++) {
+                let checkPost: boolean = true;
+                if (current[i].id || current[i].idPost) {
+                    if (last.includes(current[i].id) || last.includes(current[i].idPost)) {
+                        checkPost = false;
                     }
-                    if (checkPost){
-                        last.push(postBySkilCategory);
+                    if (checkPost) {
+                        if (current[i].idPost) {
+                            last.push(current[i].idPost);
+                        } else {
+                            last.push(current[i].id);
+                        }
                     }
                 }
             }
         }
+        return last;
     }
 
     async getPostBySkillById(id: number, name: string) {
-        let sqlQuery = `select * from posts inner join skills ON posts.id = skills.idPost WHERE skills.name = ${name} AND skills.idPost = ${id}`;
+        let sqlQuery = `select posts.id from posts inner join skills ON posts.id = skills.idPost WHERE skills.name = '${name}' AND skills.idPost = ${id}`;
         let posts = await new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if (error) {
@@ -353,8 +388,11 @@ export class PostService {
     }
 
     async getPostByCategoryById(id: number, name: string) {
-        let sqlQuery = `select * from posts inner join skills ON posts.id = skills.idPost WHERE skills.name = ${name} AND skills.idPost = ${id}`;
-        let posts = await new Promise<RowDataPacket[]>(((resolve, reject) => {
+        let sqlQuery = `select posts.id from posts 
+        inner join skills ON posts.id = skills.idPost
+        inner join categories ON skills.idCategorie = categories.id
+        WHERE skills.idPost = ${id} and categories.name = '${name}'`;
+        let postsCategory = await new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if (error) {
                     return reject(error);
@@ -362,11 +400,11 @@ export class PostService {
                 return resolve(results);
             })
         }));
-        return posts;
+        return postsCategory;
     }
 
     private async getByCityCode(code: number) {
-        let sqlQuery = "SELECT max(posts.id),idUser,`city-code`,hourlyWage,description,ageChild,numberChild,type FROM posts WHERE `city-code` LIKE " + code + "% GROUP BY idUser";
+        let sqlQuery = "SELECT max(posts.id) as idPost,idUser,`city-code`,hourlyWage,description,ageChild,numberChild,type FROM posts WHERE `city-code` LIKE '" + code + "%' GROUP BY idUser";
         let posts = await new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if (error) {
@@ -379,7 +417,7 @@ export class PostService {
     }
 
     private async getByActivityZone(code: string) {
-        let sqlQuery = 'select max(posts.id),idUser,`city-code`,hourlyWage,description,ageChild,numberChild,type, activityzone.codeDep from posts INNER JOIN activityzone ON posts.id = activityzone.id_post  where activityzone.codeDep = ' + code + ' GROUP BY idUser'
+        let sqlQuery = 'select max(posts.id) as idPost,idUser,`city-code`,hourlyWage,description,ageChild,numberChild,type, activityzone.codeDep from posts INNER JOIN activityzone ON posts.id = activityzone.id_post  where activityzone.codeDep = ' + code + ' GROUP BY idUser'
         let posts = await new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if (error) {
