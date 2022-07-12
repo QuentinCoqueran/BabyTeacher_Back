@@ -245,27 +245,20 @@ export class PostService {
         return posts;
 
     }
-
-    async searchPost(param: { activityZone: any; skill: any; availability: any; category: any, role: string }) {
-        let posts = [];
-        let postsByactivityZone = [];
-        let postByAvailabilityParent = [];
-        let postByAvailabilitBabysitter = [];
-        let currentPosts: RowDataPacket[] = [];
-        let last: RowDataPacket[] = [];
-        let postBySkilCategory = [];
-        let postBySkills = [];
-        if (param.role === 'babysitter') {
-            for (let i = 0; i < param.activityZone.length; i++) {
+    private async getPostsByActivityZone(role: string, activityZone: any) {
+        let posts: any[] = [];
+        let postsByactivityZone: any[] = [];
+        if (role === 'babysitter') {
+            for (let i = 0; i < activityZone.length; i++) {
                 //get all posts by activityZone
-                let result = await this.getByCityCode(param.activityZone[i]);
+                let result = await this.getByCityCode(activityZone[i]);
                 posts.push(result)
             }
         }
-        if (param.role === 'parent') {
-            for (let i = 0; i < param.activityZone.length; i++) {
+        if (role === 'parent') {
+            for (let i = 0; i < activityZone.length; i++) {
                 //get all posts by activityZone
-                let result = await this.getByActivityZone(param.activityZone[i]);
+                let result = await this.getByActivityZone(activityZone[i]);
                 posts.push(result)
             }
         }
@@ -274,64 +267,31 @@ export class PostService {
                 postsByactivityZone.push(posts[i][j]);
             }
         }
+        return postsByactivityZone;
+    }
+
+
+    async searchPost(param: { activityZone: any; skill: any; availability: any; category: any, role: string }) {
+        let postByAvailabilityParent = [];
+        let postByAvailabilityBabysitter = [];
+        let currentPosts: RowDataPacket[] = [];
+        let last: RowDataPacket[] = [];
+        let postsByactivityZone = await this.getPostsByActivityZone(param.role, param.activityZone);
         //si pas de post par activityZone et role return null
         if (postsByactivityZone.length <= 0) {
+
             return null;
         }
-        //get posts by availability
         if (param.role === "parent") {
-            //liste de index a supprimer
-            for (let i = 0; i < postsByactivityZone.length; i++) {
-                let checkPostAvailability: boolean = false;
-                let userAvaibality = await AvailabilityService.getInstance().getByUserId(postsByactivityZone[i].idUser);
-                if (userAvaibality !== null) {
-                    for (let j = 0; j < userAvaibality.length; j++) {
-                        if (param.availability.includes(userAvaibality[j].day)) {
-                            checkPostAvailability = true;
-                        }
-                    }
-                }
-                if (checkPostAvailability) {
-                    postByAvailabilityParent.push(postsByactivityZone[i]);
-                }
-            }
-        }
-        if (param.role === "babysitter") {
-            //liste de index a supprimer
-            for (let i = 0; i < postsByactivityZone.length; i++) {
-                let checkPostAvailability: boolean = false;
-                let postAvaibality = await AvailabilityService.getInstance().getByPostId(postsByactivityZone[i].idPost);
-                if (postAvaibality !== null) {
-                    for (let j = 0; j < postAvaibality.length; j++) {
-                        if (param.availability.includes(postAvaibality[j].day)) {
-                            checkPostAvailability = true;
-                        }
-                    }
-                }
-                if (checkPostAvailability) {
-                    postByAvailabilitBabysitter.push(postsByactivityZone[i]);
-                }
-            }
-        }
-        if (param.role === "babysitter") {
-            currentPosts = postByAvailabilitBabysitter;
-        }
-        if (param.role === "parent") {
+             postByAvailabilityParent = await this.getPostByAvailabilityParent(postsByactivityZone, param.availability);
             currentPosts = postByAvailabilityParent;
         }
-        for (let i = 0; i < currentPosts.length; i++) {
-            for (let j = 0; j < param.skill.length; j++) {
-                let result = await this.getPostBySkillById(currentPosts[i].idPost, param.skill[j])
-                postBySkills.push(result);
-            }
+        if (param.role === "babysitter") {
+            postByAvailabilityBabysitter = await this.getPostByAvailabilityBabysitter(postsByactivityZone, param.availability);
+            currentPosts = postByAvailabilityBabysitter;
         }
-        for (let i = 0; i < currentPosts.length; i++) {
-            for (let j = 0; j < param.category.length; j++) {
-                let result = await this.getPostByCategoryById(currentPosts[i].idPost, param.category[j])
-                postBySkilCategory.push(result);
-            }
-        }
-
+        let postBySkills = await this.getPostBySkill(currentPosts, param.skill);
+        let postBySkilCategory = await this.getPostBySkillCategory(currentPosts, param.category);
         // 100% de correspondance
         this.pushInArray(postBySkills, last);
         // 75% de correspondance
@@ -342,7 +302,7 @@ export class PostService {
         this.pushInArray(postsByactivityZone, last);
         // 25 % de correspondance
         if (param.role === "babysitter") {
-            this.pushInArray(postByAvailabilitBabysitter, last);
+            this.pushInArray(postByAvailabilityBabysitter, last);
         }
         if (param.role === "parent") {
             this.pushInArray(postByAvailabilityParent, last);
@@ -429,4 +389,63 @@ export class PostService {
         return posts;
     }
 
+    private async getPostByAvailabilityParent(postsByactivityZone: any[], availability: any) {
+        let postByAvailabilityParent = [];
+        for (let i = 0; i < postsByactivityZone.length; i++) {
+            let checkPostAvailability: boolean = false;
+            let userAvaibality = await AvailabilityService.getInstance().getByUserId(postsByactivityZone[i].idUser);
+            if (userAvaibality !== null) {
+                for (let j = 0; j < userAvaibality.length; j++) {
+                    if (availability.includes(userAvaibality[j].day)) {
+                        checkPostAvailability = true;
+                    }
+                }
+            }
+            if (checkPostAvailability) {
+                postByAvailabilityParent.push(postsByactivityZone[i]);
+            }
+        }
+        return postByAvailabilityParent;
+    }
+
+    private async getPostByAvailabilityBabysitter(postsByactivityZone: any[], availability: any) {
+        let postByAvailabilityBabysitter = [];
+        for (let i = 0; i < postsByactivityZone.length; i++) {
+            let checkPostAvailability: boolean = false;
+            let postAvaibality = await AvailabilityService.getInstance().getByPostId(postsByactivityZone[i].idPost);
+            if (postAvaibality !== null) {
+                for (let j = 0; j < postAvaibality.length; j++) {
+                    if (availability.includes(postAvaibality[j].day)) {
+                        checkPostAvailability = true;
+                    }
+                }
+            }
+            if (checkPostAvailability) {
+                postByAvailabilityBabysitter.push(postsByactivityZone[i]);
+            }
+        }
+        return postByAvailabilityBabysitter;
+    }
+
+    private async getPostBySkillCategory(currentPosts: RowDataPacket[], category: any) {
+        let postBySkilCategory = [];
+        for (let i = 0; i < currentPosts.length; i++) {
+            for (let j = 0; j < category.length; j++) {
+                let result = await this.getPostByCategoryById(currentPosts[i].idPost, category[j])
+                postBySkilCategory.push(result);
+            }
+        }
+        return postBySkilCategory;
+    }
+
+    private async getPostBySkill(currentPosts: RowDataPacket[], skill: any) {
+        let postBySkills = [];
+        for (let i = 0; i < currentPosts.length; i++) {
+            for (let j = 0; j < skill.length; j++) {
+                let result = await this.getPostBySkillById(currentPosts[i].idPost, skill[j])
+                postBySkills.push(result);
+            }
+        }
+        return postBySkills;
+    }
 }
