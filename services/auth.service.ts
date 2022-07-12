@@ -98,6 +98,30 @@ export class AuthService {
         }
     }
 
+    public async logInQrCode(data: Pick<UserProps, 'login' | 'password'>): Promise<string> {
+        if (!data.login || !data.password) {
+            throw new Error("Data Missed");
+        }
+        let login = data.login;
+        let password = SecurityUtils.sha512(data.password);
+        try {
+            let resultQuery = await this.getUserByLoginPass(login, password);
+            const user_id = resultQuery[0].id;
+            console.log(resultQuery);
+            if (resultQuery.length > 0) {
+                const role = await AuthService.getInstance().getRoleByUserId(user_id);
+                if (role[0].role != "parent") {
+                    throw new Error("Vous n'êtes pas un parent");
+                }
+
+            } else {
+                throw new Error("User not found");
+            }
+        } catch (error) {
+            throw new Error("SQl error" + error);
+        }
+    }
+
     public async getUserByLogin(login: string) {
         const sql = `SELECT * FROM users WHERE login = '${login}'`;
         return new Promise<RowDataPacket[]>((resolve, reject) => {

@@ -54,7 +54,21 @@ export class AuthController {
             res.status(401).end(); // unauthorized
         }
     }
+    async logUserQrCode(req: Request, res: Response) {
+        try {
+            const session = await AuthService.getInstance().logInQrCode({
+                login: req.body.login,
+                password: req.body.password
+            });//, platform);
 
+            res.send({
+                response: session
+            });
+        } catch (err) {
+            console.log(err)
+            res.status(401).end(); // unauthorized
+        }
+    }
     async me(req: Request, res: Response) {
         try {
             res.json(req.user);
@@ -214,6 +228,7 @@ export class AuthController {
         router.post('/updateSkillsBabysitter', express.json(), this.updateSkillsBabysitter.bind(this));
         router.post('/updateUser', express.json(), this.updateUser.bind(this));
         router.post('/login', express.json(), this.logUser.bind(this));
+        router.post('/loginQrCode', express.json(), this.logUserQrCode.bind(this));
         router.get('/me', checkUserConnected(), this.me.bind(this));
         router.get('/getRoleByUserId/:id_user', this.getRoleByUserId.bind(this));
         router.get('/getUserLogin/:login', express.json(), this.getUserLogin.bind(this));
