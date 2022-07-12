@@ -207,5 +207,4 @@ export class AvailabilityService {
             })
         }))
     }
-
 }
