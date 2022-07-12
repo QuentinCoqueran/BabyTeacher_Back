@@ -159,7 +159,7 @@ export class ContractService {
     }
 
     async updateStep(id: number, step: number) {
-        if (step < 0 || step > 3) {
+        if (step < -1 || step > 3) {
             throw new Error("Step must be between 0 and 3");
         }
         let sqlQuery = `UPDATE contracts SET step = ${step} WHERE id = ${id}`
