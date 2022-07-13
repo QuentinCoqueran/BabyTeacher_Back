@@ -113,7 +113,7 @@ export class AuthService {
                 if (role[0].role != "parent") {
                     throw new Error("Vous n'êtes pas un parent");
                 }
-                const contract = await ContractService.getInstance().getById(data.idContract, user_id);
+                const contract = await ContractService.getInstance().getByIdQrCode(data.idContract, user_id);
                 if (contract) {
                     if (contract[0].id != data.idContract) {
                         throw new Error("Vous n'êtes pas le parent de ce contrat");
@@ -124,7 +124,7 @@ export class AuthService {
                     if (contract[0].idBabysitter != data.idBabysitter) {
                         throw new Error("Erreur avec le babysitter");
                     }
-                }else{
+                } else {
                     throw new Error("Contrat non trouvé");
                 }
                 return role[0].role;

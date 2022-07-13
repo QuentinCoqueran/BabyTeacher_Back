@@ -47,6 +47,24 @@ export class ContractService {
         }))
     }
 
+    public async getByIdQrCode(id: number, idUser: number) {
+        let sqlQuery = `SELECT * FROM contracts WHERE id LIKE ${id} AND step = 1`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error)
+                }
+                if (results.length === 0) {
+                    return reject("No contract found")
+                }
+                if (results[0].idParent != idUser && results[0].idBabysitter != idUser) {
+                    return reject("You are not allowed to see this contract")
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
     public async getByParent(parentId: number) {
         let sqlQuery = `SELECT * FROM contracts WHERE contracts.idParent LIKE ${parentId}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
@@ -211,8 +229,8 @@ export class ContractService {
                 })
 
             })
-            return resolve(resultSelect);
         }));
+        return resultSelect;
     }
 
 }
