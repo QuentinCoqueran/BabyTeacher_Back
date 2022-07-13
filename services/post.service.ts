@@ -245,7 +245,8 @@ export class PostService {
         return posts;
 
     }
-    private async getPostsByActivityZone(role: string, activityZone: any) {
+
+    private async getPostsByActivityZone(role: string, activityZone: number[]) {
         let posts: any[] = [];
         let postsByactivityZone: any[] = [];
         if (role === 'babysitter') {
@@ -270,8 +271,7 @@ export class PostService {
         return postsByactivityZone;
     }
 
-
-    async searchPost(param: { activityZone: any; skill: any; availability: any; category: any, role: string }) {
+    async searchPost(param: { activityZone: number[]; skill: string[]; availability: string[]; category: string[], role: string }) {
         let postByAvailabilityParent = [];
         let postByAvailabilityBabysitter = [];
         let currentPosts: RowDataPacket[] = [];
@@ -376,7 +376,7 @@ export class PostService {
         return posts;
     }
 
-    private async getByActivityZone(code: string) {
+    private async getByActivityZone(code: number) {
         let sqlQuery = 'select max(posts.id) as idPost,idUser,`city-code`,hourlyWage,description,ageChild,numberChild,type, activityzone.codeDep from posts INNER JOIN activityzone ON posts.id = activityzone.id_post  where activityzone.codeDep = ' + code + ' GROUP BY idUser'
         let posts = await new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
@@ -389,7 +389,7 @@ export class PostService {
         return posts;
     }
 
-    private async getPostByAvailabilityParent(postsByactivityZone: any[], availability: any) {
+    private async getPostByAvailabilityParent(postsByactivityZone: any[], availability: string[]) {
         let postByAvailabilityParent = [];
         for (let i = 0; i < postsByactivityZone.length; i++) {
             let checkPostAvailability: boolean = false;
@@ -408,7 +408,7 @@ export class PostService {
         return postByAvailabilityParent;
     }
 
-    private async getPostByAvailabilityBabysitter(postsByactivityZone: any[], availability: any) {
+    private async getPostByAvailabilityBabysitter(postsByactivityZone: any[], availability: string[]) {
         let postByAvailabilityBabysitter = [];
         for (let i = 0; i < postsByactivityZone.length; i++) {
             let checkPostAvailability: boolean = false;
@@ -427,7 +427,7 @@ export class PostService {
         return postByAvailabilityBabysitter;
     }
 
-    private async getPostBySkillCategory(currentPosts: RowDataPacket[], category: any) {
+    private async getPostBySkillCategory(currentPosts: RowDataPacket[], category: string[]) {
         let postBySkilCategory = [];
         for (let i = 0; i < currentPosts.length; i++) {
             for (let j = 0; j < category.length; j++) {
@@ -438,7 +438,7 @@ export class PostService {
         return postBySkilCategory;
     }
 
-    private async getPostBySkill(currentPosts: RowDataPacket[], skill: any) {
+    private async getPostBySkill(currentPosts: RowDataPacket[], skill: string[]) {
         let postBySkills = [];
         for (let i = 0; i < currentPosts.length; i++) {
             for (let j = 0; j < skill.length; j++) {

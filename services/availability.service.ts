@@ -118,11 +118,9 @@ export class AvailabilityService {
     }
 
     public async add(availability: AvailabilityProps) {
-
         if (!availability.idUser && !availability.idPost) {
             return Promise.reject("You must provide an idUser or idPost");
         }
-
         if (availability.idUser && availability.idPost) {
             let idUser = availability.idUser;
             let role;
@@ -157,11 +155,7 @@ export class AvailabilityService {
                     return resolve(results);
                 })
             }))
-
         }
-
-
-
     }
 
     async updateListAvailabilityBabysitter(param: { arrayAvaibality: any, idUser: number }) {
