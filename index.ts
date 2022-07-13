@@ -43,11 +43,12 @@ async function startServer(): Promise<void> {
     const app = express();
     const httpServer = http.createServer(app);
     const io = require('socket.io')(httpServer, {
-        cors: {origin: 'http://localhost:4200'}
+        //cors: {origin: 'http://localhost:4200'}
+        cors: {origin: process.env.FRONT_URL}
     });
     let cors = require('cors');
     // use it before all route definitions
-    app.use(cors({origin: 'http://localhost:4200'}));
+    app.use(cors({origin: process.env.FRONT_URL}));
 
     // ---> Déclaration est appels aux controllers
     const authController = new AuthController();
