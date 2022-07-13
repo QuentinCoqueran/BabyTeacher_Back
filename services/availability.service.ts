@@ -68,7 +68,6 @@ export class AvailabilityService {
 
     public async parseAvailability(idUser: number) {
         let availabilityList = await AvailabilityService.getInstance().getByUserId(idUser);
-
         let listCalendat: ListCalendar = new ListCalendar([]);
         for (let i = 0; i < 24; i++) {
             let calendar: Calendar = new Calendar("", "", "", "", "", "", "");
@@ -99,7 +98,6 @@ export class AvailabilityService {
                     }
                 }
             }
-
             listCalendat.listCalendar.push(calendar);
         }
         return listCalendat;
@@ -117,78 +115,64 @@ export class AvailabilityService {
         }))
     }
 
-    public async add(availability: AvailabilityProps) {
-        if (!availability.idUser && !availability.idPost) {
-            return Promise.reject("You must provide an idUser or idPost");
+    public async add(availability: string[][], idUser: number | undefined , idPost: number | undefined) {
+        if(idUser) {
+            await AvailabilityService.getInstance().deleteAlllByUserId(idUser);
+        }else if(idPost) {
+            await AvailabilityService.getInstance().deleteAllByPostId(idPost);
         }
-        if (availability.idUser && availability.idPost) {
-            let idUser = availability.idUser;
-            let role;
-
-            role = await AuthService.getInstance().getRoleByUserId(idUser.toString());
-
-            if (role[0].role === "parent") {
-                return Promise.reject("Parent can't add availability on their profile");
-            }
-
-            let userAvailability = await this.getByUserId(availability.idUser);
-            let exist = false;
-
-            for (let av of userAvailability) {
-
-                if (av.day === availability.day) {
-                    exist = true;
-                    break;
-                }
-            }
-
-            if (exist) {
-                return Promise.reject("Availability already exist for this date");
-            }
-
-            let sqlQuery = `INSERT INTO availability (idUser, idPost, day, startHour, endHour) VALUES (${availability.idUser}, ${availability.idPost}, '${availability.day}', '${availability.startHour}', '${availability.endHour}')`
-            return new Promise<RowDataPacket[]>(((resolve, reject) => {
-                db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                    if (error) {
-                        return reject(error)
+        for (let i = 0; i < availability.length; i++) {
+            let inSeries: boolean = false
+            let start: number = 0;
+            let end: number = 0;
+            for (let j = 1; j < availability[i].length; j++) {
+                if(!inSeries && availability[i][j] === "X") {
+                    console.log("start");
+                    inSeries = true;
+                    start = j - 1;
+                    end = j - 1;
+                } else if (inSeries && availability[i][j] === "X") {
+                    console.log("continue");
+                    end++;
+                }else if ((inSeries && availability[i][j] !== "X") || (j === 25 && inSeries)) {
+                    console.log("end");
+                    inSeries = false;
+                    if(idUser) {
+                        let sqlQuery = `INSERT INTO availability (idUser, day, startHour, endHour) VALUES (${idUser}, '${availability[i][0]}', ${start}, ${end})`;
+                        await AvailabilityService.getInstance().insertPromise(sqlQuery);
                     }
-                    return resolve(results);
-                })
-            }))
-        }
-    }
-
-    async updateListAvailabilityBabysitter(param: { arrayAvaibality: any, idUser: number }) {
-        let arrayAvaibality = param.arrayAvaibality; //Ce que je reçois
-
-        let sqlQueries = [];
-        let userAvailability = await this.getByUserId(param.idUser);
-        let exist = false;
-        for (let avToAdd of arrayAvaibality){
-
-            for (let availability of userAvailability) {
-                if (avToAdd.day === availability.day) {
-                    exist = true;
-                    break;
+                    if(idPost) {
+                        let sqlQuery = `INSERT INTO availability (idPost, day, startHour, endHour) VALUES (${idPost}, '${availability[i][0]}', ${start}, ${end})`;
+                        await AvailabilityService.getInstance().insertPromise(sqlQuery);
+                    }
                 }
             }
-            if (!exist) {
-                sqlQueries.push(`UPDATE availability SET startHour = '${avToAdd.startHour}', endHour = '${avToAdd.endHour}' WHERE idUser = ${param.idUser} AND day = '${avToAdd.day}'`);
-            }else{
-                break;
-            }
-        }
-
-        if (!exist){
-            for (let sql of sqlQueries) {
-                await this.insertPromise(sql);
-            }
-            return Promise.resolve("Availability updated");
-        }else {
-            return Promise.reject("One of the availability already exist (Rollback)");
         }
     }
 
+    public async deleteAlllByUserId(idUser: number) {
+        let sqlQuery = `DELETE FROM availability WHERE idUser = ${idUser}`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
+    public async deleteAllByPostId(idPost: number) {
+        let sqlQuery = `DELETE FROM availability WHERE idPost = ${idPost}`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
 
     public async delete(id: number) {
         let sqlQuery = `DELETE FROM availability WHERE id = ${id}`

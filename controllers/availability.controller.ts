@@ -70,42 +70,20 @@ export class AvailabilityController {
 
     async createAvailability(req: Request, res: Response) {
         try {
-            const availability = await AvailabilityService.getInstance().add({
-                idUser: req.body.idUser,
-                idPost: req.body.idPost,
-                day: req.body.day,
-                startHour: req.body.startHour,
-                endHour: req.body.endHour
-            });
-            if (availability) {
-                res.send({
-                    response: true
-                });
-            } else {
-                res.status(404).end();
+            if((!req.body.idUser && !req.body.idPost) || (req.body.idUser && req.body.idPost)){
+                res.status(400).end();
             }
+            let availability;
+            if(req.body.idUser) {
+                availability = await AvailabilityService.getInstance().add(req.body, req.body.idUser, undefined);
+            }else{
+                availability = await AvailabilityService.getInstance().add(req.body, undefined, req.body.idPost);
+            }
+            return res.status(201).end(); // Created
         } catch (err) {
             console.log(err)
-            res.status(401).end(); // unauthorized
+            res.status(400).end(); // bad request
         }
-    }
-
-    async updateListAvailability(req: Request, res: Response) {
-        try {
-            if (req.user) {
-                await AvailabilityService.getInstance().updateListAvailabilityBabysitter({
-                    arrayAvaibality: req.body.arrayAvaibality,
-                    idUser: req.user.id
-                });
-            }
-            res.send({
-                response: true
-            });
-        } catch (err) {
-            console.log(err)
-            res.status(401).end(); // unauthorized
-        }
-
     }
 
     async deleteAvailability(req: Request, res: Response) {
@@ -132,7 +110,7 @@ export class AvailabilityController {
         router.get('/getByPost/:idPost', checkUserConnected(), this.getAvailabilityByPostId.bind(this));
         router.get('/getAvailabilityParseByUserId/:idUser', checkUserConnected(), this.getAvailabilityParseByUserId.bind(this));
         router.post('/create', express.json(), checkUserConnected(), this.createAvailability.bind(this));
-        router.put('/updateList', express.json(), checkUserConnected(), this.updateListAvailability.bind(this));
+        // router.put('/updateList', express.json(), checkUserConnected(), this.updateListAvailability.bind(this));
         router.delete('/delete/:id', checkUserConnected(), this.deleteAvailability.bind(this));
         return router;
     }

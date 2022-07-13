@@ -62,6 +62,17 @@ export class ActivtyZoneService {
             })
         }))
     }
+    public async deleteByPostId(id_post: number) {
+        let sqlQuery = `DELETE FROM activityzone WHERE id_post = ${id_post}`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
 
     async deleteById(id: number) {
         let sqlQuery = `DELETE FROM activityzone WHERE posts.id LIKE ${id}`;
