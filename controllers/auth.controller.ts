@@ -54,21 +54,25 @@ export class AuthController {
             res.status(401).end(); // unauthorized
         }
     }
+
     async logUserQrCode(req: Request, res: Response) {
         try {
-            const session = await AuthService.getInstance().logInQrCode({
+            const role = await AuthService.getInstance().logInQrCode({
                 login: req.body.login,
-                password: req.body.password
+                password: req.body.password,
+                idBabysitter: req.body.idBabysitter,
+                idContract: req.body.idContract
             });//, platform);
 
             res.send({
-                response: session
+                response: role
             });
         } catch (err) {
             console.log(err)
             res.status(401).end(); // unauthorized
         }
     }
+
     async me(req: Request, res: Response) {
         try {
             res.json(req.user);
@@ -152,7 +156,6 @@ export class AuthController {
 
     async updateSkillsBabysitter(req: Request, res: Response) {
         try {
-            console.log(req.body)
             if (req.body.arraySkill[0].category != '' && req.body.arraySkill[0].skill != '' && req.body.arraySkill[0].id != '') {
                 await AuthService.getInstance().updateSkillsBabysitter({
                     id: req.body.id,
