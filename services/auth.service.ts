@@ -2,6 +2,7 @@ import {UserProps} from "../models/UserProps";
 import {db} from "../utils/mysql.connector";
 import {SecurityUtils} from "../utils/security.utils";
 import {RowDataPacket} from "mysql2";
+import {ContractService} from "./contract.service";
 
 export class AuthService {
 
@@ -93,6 +94,43 @@ export class AuthService {
                 }
             }
             throw new Error("User not found");
+        } catch (error) {
+            throw new Error("SQl error" + error);
+        }
+    }
+
+    public async logInQrCode(data: { login: string, password: string, idBabysitter: number, idContract: number }): Promise<string> {
+        if (!data.login || !data.password) {
+            throw new Error("Data Missed");
+        }
+        let login = data.login;
+        let password = SecurityUtils.sha512(data.password);
+        try {
+            let resultQuery = await this.getUserByLoginPass(login, password);
+            const user_id = resultQuery[0].id;
+            if (resultQuery.length > 0) {
+                const role = await AuthService.getInstance().getRoleByUserId(user_id);
+                if (role[0].role != "parent") {
+                    throw new Error("Vous n'êtes pas un parent");
+                }
+                const contract = await ContractService.getInstance().getById(data.idContract, user_id);
+                if (contract) {
+                    if (contract[0].id != data.idContract) {
+                        throw new Error("Vous n'êtes pas le parent de ce contrat");
+                    }
+                    if (contract[0].idParent != user_id) {
+                        throw new Error("Vous n'êtes pas le parent de ce contrat");
+                    }
+                    if (contract[0].idBabysitter != data.idBabysitter) {
+                        throw new Error("Erreur avec le babysitter");
+                    }
+                }else{
+                    throw new Error("Contrat non trouvé");
+                }
+                return role[0].role;
+            } else {
+                throw new Error("User not found");
+            }
         } catch (error) {
             throw new Error("SQl error" + error);
         }

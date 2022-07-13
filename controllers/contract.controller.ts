@@ -129,6 +129,23 @@ export class ContractController {
     }
 
     //update contract step
+    async updateHoursDone(req: Request, res: Response) {
+        try {
+            const contract = await ContractService.getInstance().updateHoursDone(parseInt(req.body.id), req.body.hours);
+            if (contract) {
+                res.send({
+                    response: contract
+                });
+            } else {
+                res.status(404).end();
+            }
+        } catch (err) {
+            console.log(err)
+            res.status(401).end(); // unauthorized
+        }
+    }
+
+    //update hours done
     async updateContractStep(req: Request, res: Response) {
         try {
             const contract = await ContractService.getInstance().updateStep(parseInt(req.body.id), req.body.step);
@@ -188,6 +205,7 @@ export class ContractController {
         router.post('/create', express.json(), checkUserConnected(), this.createContract.bind(this));
         router.put('/update', express.json(), checkUserConnected(), this.updateContract.bind(this));
         router.put('/updateContractStep', express.json(), checkUserConnected(), this.updateContractStep.bind(this));
+        router.put('/updateHoursDone', express.json(), this.updateHoursDone.bind(this));
         router.delete('/delete', checkUserConnected(), this.deleteContract.bind(this));
         router.post('/stripe', express.json(), this.stripe.bind(this));
         return router;
