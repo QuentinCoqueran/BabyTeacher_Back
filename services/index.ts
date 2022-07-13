@@ -10,4 +10,5 @@ export * from './session.service';
 export * from './signalement.service';
 export * from './skill.service';
 export * from './test.service';
+export * from './activityzone.service';
 
