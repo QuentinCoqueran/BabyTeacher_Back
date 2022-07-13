@@ -177,13 +177,13 @@ export class ContractService {
     }
 
     async updateHoursDone(id: number, hours: number) {
-        let resultSelect:RowDataPacket[]= [] ;
+        let resultSelect: RowDataPacket[] = [];
         if (hours <= 0 || hours > 24) {
             throw new Error("Hours must be positive");
         }
         // get numberOfHoursDone from contracts where id = id
         let sqlQuery1 = `SELECT * FROM contracts WHERE id = ${id}`
-        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+        new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery1, (error: QueryError, results: RowDataPacket[]) => {
                 if (error) {
                     return reject(error)
@@ -191,7 +191,6 @@ export class ContractService {
                 if (results.length == 0) {
                     return reject("Contract not found");
                 }
-                resultSelect = results;
                 let numberOfHourDone = results[0].numberOfHourDone;
                 sqlQuery1 = `UPDATE contracts SET numberOfHourDone = ${numberOfHourDone + hours} WHERE id = ${id}`
                 db.query(sqlQuery1, (error: QueryError, results: RowDataPacket[]) => {
@@ -199,10 +198,21 @@ export class ContractService {
                         return reject(error)
                     }
                 })
-                return resolve(resultSelect);
-            })
-        }))
-    }
+                sqlQuery1 = `SELECT * FROM contracts WHERE id = ${id}`
 
+                db.query(sqlQuery1, (error: QueryError, results: RowDataPacket[]) => {
+                    if (error) {
+                        return reject(error)
+                    }
+                    if (results.length == 0) {
+                        return reject("Contract not found");
+                    }
+                    resultSelect = results;
+                })
+
+            })
+            return resolve(resultSelect);
+        }));
+    }
 
 }
