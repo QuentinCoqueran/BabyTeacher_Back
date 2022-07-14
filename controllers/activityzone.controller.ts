@@ -71,7 +71,6 @@ export class ActivityZoneController{
         router.post('/add', checkUserConnected(), express.json(), this.createActivity.bind(this));
         router.post('/update/:id', express.json(), checkUserConnected(), this.updateActivity.bind(this));
         router.get('/get/:id', checkUserConnected(), this.show.bind(this));
-        router
         router.delete('/delete/:id', checkUserConnected(), this.deleteActivity.bind(this));
         return router;
     }

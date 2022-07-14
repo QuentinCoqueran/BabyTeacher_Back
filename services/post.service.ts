@@ -16,9 +16,6 @@ export class PostService {
         return PostService.instance;
     }
 
-    private constructor() {
-    }
-
     public async getAll() {
         let sqlQuery: string = "SELECT * FROM posts";
         return new Promise<RowDataPacket[]>((resolve, reject) => {
@@ -31,6 +28,17 @@ export class PostService {
         });
     }
 
+    public async getLastByUserId(idUser: number) {
+        let sqlQuery: string = `SELECT * FROM posts where idUser = ${idUser} ORDER BY id DESC LIMIT 1`;
+        return new Promise<RowDataPacket[]>((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    }
     public async getById(id: number) {
         let sqlQuery = `SELECT * FROM posts WHERE id LIKE ${id}`;
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
@@ -56,7 +64,7 @@ export class PostService {
     }
 
     public async add(post: PostProps) {
-        let sqlQuery = `INSERT INTO posts (idUser, city, activityZone, hourlyWage, description, ageChild, numberChild, type) VALUES (${post.idUser}, '${post.city}', '${post.activityZone}', ${post.hourlyWage}, '${post.description}', ${post.ageChild}, ${post.numberChild}, ${post.type})`;
+        let sqlQuery = `INSERT INTO posts (idUser, city-code, hourlyWage, description, ageChild, numberChild, type) VALUES (${post.idUser}, '${post.cityCode}', ${post.hourlyWage}, '${post.description}', ${post.ageChild}, ${post.numberChild}, ${post.type})`;
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if (error) {
@@ -69,13 +77,13 @@ export class PostService {
 
     public async createParentPost(post: Partial<PostProps>): Promise<{ response: boolean; type: string }> {
         let errorObj = {response: false, type: "Ok"};
-        if (!post.idUser || !post.city || !post.hourlyWage || !post.description || !post.ageChild || !post.numberChild) {
+        if (!post.idUser || !post.cityCode || !post.hourlyWage || !post.description || !post.ageChild || !post.numberChild) {
             throw new Error("Data missed");
         } else {
             // check if description contains "'" and put "\" before
             const description = post.description.replace(/'/g, "\\'");
             const type = "parent";
-            const sqlQuery = `INSERT INTO posts (idUser, city, hourlyWage, description, ageChild, numberChild, type) VALUES (${post.idUser}, '${post.city}', ${post.hourlyWage}, '${description}', ${post.ageChild}, ${post.numberChild}, '${type}')`;
+            const sqlQuery = `INSERT INTO posts (idUser, city, hourlyWage, description, ageChild, numberChild, type) VALUES (${post.idUser}, '${post.cityCode}', ${post.hourlyWage}, '${description}', ${post.ageChild}, ${post.numberChild}, '${type}')`;
             try {
                 await this.insertPromise(sqlQuery);
                 return errorObj;
@@ -88,12 +96,12 @@ export class PostService {
 
     public async createBabyTeacherPost(post: Partial<PostProps>): Promise<{ response: boolean; type: string }> {
         let errorObj = {response: false, type: "Ok"};
-        if (!post.idUser || !post.activityZone || !post.hourlyWage || !post.description) {
+        if (!post.idUser || !post.hourlyWage || !post.description) {
             throw new Error("Data missed");
         } else {
             const description = post.description.replace(/'/g, "\\'");
             const type = "babysitter";
-            const sqlQuery = `INSERT INTO posts (idUser, activityZone, hourlyWage, description, type) VALUES (${post.idUser}, '${post.activityZone}', ${post.hourlyWage}, '${description}', '${type}')`;
+            const sqlQuery = `INSERT INTO posts (idUser, hourlyWage, description, type) VALUES (${post.idUser}, ${post.hourlyWage}, '${description}', '${type}')`;
             try {
                 await this.insertPromise(sqlQuery);
                 return errorObj;
@@ -118,7 +126,7 @@ export class PostService {
 
     async updateParentById(id: number, update: Partial<PostProps>) {
         let errorObj = {response: false, type: "Ok"};
-        if (!update.city && !update.hourlyWage && !update.description && !update.ageChild && !update.numberChild) {
+        if (!update.cityCode && !update.hourlyWage && !update.description && !update.ageChild && !update.numberChild) {
             throw new Error("No data");
         } else {
             const post = await this.getById(id);
@@ -126,8 +134,8 @@ export class PostService {
                 throw new Error("This id doesnt exist");
             } else {
                 // TODO refactor this
-                if (update.city !== undefined) {
-                    post[0].city = update.city;
+                if (update.cityCode !== undefined) {
+                    post[0].city = update.cityCode;
                 }
                 if (update.hourlyWage !== undefined) {
                     post[0].hourlyWage = update.hourlyWage;
@@ -156,7 +164,7 @@ export class PostService {
 
     async updateBabysitterById(id: number, update: Partial<PostProps>) {
         let errorObj = {response: false, type: "Ok"};
-        if (!update.idUser && !update.activityZone && !update.hourlyWage && !update.description) {
+        if (!update.idUser && !update.hourlyWage && !update.description) {
             throw new Error("No data");
         } else {
             if (update.description) {
@@ -167,9 +175,6 @@ export class PostService {
                 throw new Error("This id doesnt exist");
             } else {
                 // TODO refactor this
-                if (update.activityZone !== undefined) {
-                    post[0].activityZone = update.activityZone;
-                }
                 if (update.hourlyWage !== undefined) {
                     post[0].hourlyWage = update.hourlyWage;
                 }
@@ -231,9 +236,7 @@ export class PostService {
                 return resolve(results);
             })
         }));
-
         let users = await AuthService.getInstance().getUsersBySkillId(skillId);
-
         for (let i = 0; i < posts.length; i++) {
             let user = await AuthService.getInstance().getUserById(posts[i].idUser);
             if (!users.includes(user[0])) {
@@ -241,9 +244,7 @@ export class PostService {
                 i--;
             }
         }
-
         return posts;
-
     }
 
     private async getPostsByActivityZone(role: string, activityZone: number[]) {
@@ -279,7 +280,6 @@ export class PostService {
         let postsByactivityZone = await this.getPostsByActivityZone(param.role, param.activityZone);
         //si pas de post par activityZone et role return null
         if (postsByactivityZone.length <= 0) {
-
             return null;
         }
         if (param.role === "parent") {

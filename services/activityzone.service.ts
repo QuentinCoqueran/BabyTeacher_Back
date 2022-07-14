@@ -62,6 +62,17 @@ export class ActivtyZoneService {
             })
         }))
     }
+    public async deleteByPostId(id_post: number) {
+        let sqlQuery = `DELETE FROM activityzone WHERE id_post = ${id_post}`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
 
     async deleteById(id: number) {
         let sqlQuery = `DELETE FROM activityzone WHERE posts.id LIKE ${id}`;
@@ -103,12 +114,12 @@ export class ActivtyZoneService {
         }
     }
 
-    async createActivityZone(activity: Partial<ActivityZoneProps>): Promise<{ response: boolean; type: string }> {
+    async createActivityZone(idPost: number, codeDep: number): Promise<{ response: boolean; type: string }> {
         let errorObj = {response: false, type: "Ok"};
-        if (!activity.id_post || !activity.codeDep) {
+        if (!idPost || !codeDep) {
             throw new Error("Data missed");
         } else {
-            const sqlQuery = `INSERT INTO activityzone (id_post, codeDep) VALUES (${activity.id_post}, '${activity.codeDep}')`;
+            const sqlQuery = `INSERT INTO activityzone (id_post, codeDep) VALUES (${idPost}, '${codeDep}')`;
             try {
                 await this.insertPromise(sqlQuery);
                 return errorObj;

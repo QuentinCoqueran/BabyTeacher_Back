@@ -1,7 +1,7 @@
 import express, {Request, Response, Router} from "express";
-import {AuthService} from "../services";
+import {AuthService, AvailabilityService, ActivtyZoneService} from "../services";
 import {checkUserConnected} from "../middlewares";
-import {PostService} from "../services";
+ import {PostService} from "../services";
 
 export class PostController {
 
@@ -9,6 +9,11 @@ export class PostController {
         const isExist = await PostService.getInstance().getById(parseInt(req.params.id));
         if (isExist.length !== 0) {
             try {
+                if(isExist[0].type === "parent") {
+                    await AvailabilityService.getInstance().deleteAllByPostId(parseInt(req.params.id));
+                } else {
+                    await ActivtyZoneService.getInstance().deleteByPostId(parseInt(req.params.id));
+                }
                 const post = await PostService.getInstance().deleteById(parseInt(req.params.id));
                 res.status(204).json(post);
             } catch (err) {
@@ -45,14 +50,17 @@ export class PostController {
                 if (role[0].role === "parent") {
                     try {
                         const post = await PostService.getInstance().updateParentById(parseInt(req.params.id), req.body);
+                        await AvailabilityService.getInstance().add(req.body.availability, req.user.id, parseInt(req.params.id));
                         res.json(post);
                     } catch (err) {
                         console.log(err);
                         res.status(400).json(err);
                     }
-                } else {
+                }
+                if (role[0].role === "babysitter") {
                     try {
                         const post = await PostService.getInstance().updateBabysitterById(parseInt(req.params.id), req.body);
+                        await ActivtyZoneService.getInstance().createActivityZone(parseInt(req.params.id), req.body.codeDep);
                         res.json(post);
                     } catch (err) {
                         console.log(err);
@@ -85,7 +93,6 @@ export class PostController {
         }
     }
 
-
     async createPost(req: Request, res: Response) {
         try {
             if (req.user !== undefined) {
@@ -93,22 +100,27 @@ export class PostController {
                 if (role[0].role === "parent") {
                     const post = await PostService.getInstance().createParentPost({
                         idUser: req.user.id,
-                        city: req.body.city,
+                        cityCode: req.body.cityCode,
                         hourlyWage: req.body.hourlyWage,
                         description: req.body.description,
                         ageChild: req.body.ageChild,
                         numberChild: req.body.numberChild
                     });
+                    const created = await PostService.getInstance().getLastByUserId(req.user.id);
+                    // création des disponibilités pour le post parent
+                    await AvailabilityService.getInstance().add(req.body.availability, req.user.id, created[0].id);
                     res.send({
                         response: post
                     });
-                } else {
+                }
+                if (role[0].role === "babysitter") {
                     const post = await PostService.getInstance().createBabyTeacherPost({
                         idUser: req.user.id,
-                        activityZone: req.body.activityZone,
                         hourlyWage: req.body.hourlyWage,
                         description: req.body.description,
                     });
+                    const created = await PostService.getInstance().getLastByUserId(req.user.id);
+                    await ActivtyZoneService.getInstance().createActivityZone(created[0].id, req.body.codeDep);
                     res.send({
                         response: post
                     });
