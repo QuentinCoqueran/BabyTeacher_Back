@@ -1,7 +1,7 @@
 import express, {Request, Response, Router} from "express";
 import {AuthService, AvailabilityService, ActivtyZoneService} from "../services";
 import {checkUserConnected} from "../middlewares";
- import {PostService} from "../services";
+import {PostService} from "../services";
 
 export class PostController {
 
@@ -9,7 +9,7 @@ export class PostController {
         const isExist = await PostService.getInstance().getById(parseInt(req.params.id));
         if (isExist.length !== 0) {
             try {
-                if(isExist[0].type === "parent") {
+                if (isExist[0].type === "parent") {
                     await AvailabilityService.getInstance().deleteAllByPostId(parseInt(req.params.id));
                 } else {
                     await ActivtyZoneService.getInstance().deleteByPostId(parseInt(req.params.id));

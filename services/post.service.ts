@@ -77,13 +77,13 @@ export class PostService {
 
     public async createParentPost(post: Partial<PostProps>): Promise<{ response: boolean; type: string }> {
         let errorObj = {response: false, type: "Ok"};
-        if (!post.idUser || !post.cityCode || !post.hourlyWage || !post.description || !post.ageChild || !post.numberChild) {
+        if (!post.idUser || !post.cityCode || !post.hourlyWage || !post.description  || !post.numberChild) {
             throw new Error("Data missed");
         } else {
             // check if description contains "'" and put "\" before
             const description = post.description.replace(/'/g, "\\'");
             const type = "parent";
-            const sqlQuery = `INSERT INTO posts (idUser, city, hourlyWage, description, ageChild, numberChild, type) VALUES (${post.idUser}, '${post.cityCode}', ${post.hourlyWage}, '${description}', ${post.ageChild}, ${post.numberChild}, '${type}')`;
+            const sqlQuery = `INSERT INTO posts (idUser, \`city-code\`, hourlyWage, description, ageChild, numberChild, type) VALUES (${post.idUser}, '${post.cityCode}', ${post.hourlyWage}, '${description}', ${post.ageChild}, ${post.numberChild}, '${type}')`;
             try {
                 await this.insertPromise(sqlQuery);
                 return errorObj;
