@@ -51,7 +51,7 @@ export class ActivtyZoneService {
         }))
     }
 
-    public async getByPostId(id_post : number) {
+    public async getByPostId(id_post: number) {
         let sqlQuery = `SELECT * FROM activityzone WHERE availability.id_post LIKE ${id_post}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
@@ -62,6 +62,7 @@ export class ActivtyZoneService {
             })
         }))
     }
+
     public async deleteByPostId(id_post: number) {
         let sqlQuery = `DELETE FROM activityzone WHERE id_post = ${id_post}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
@@ -114,19 +115,21 @@ export class ActivtyZoneService {
         }
     }
 
-    async createActivityZone(idPost: number, codeDep: number): Promise<{ response: boolean; type: string }> {
+    async createActivityZone(idPost: number, codeDep: number[]): Promise<{ response: boolean; type: string }> {
+
         let errorObj = {response: false, type: "Ok"};
         if (!idPost || !codeDep) {
             throw new Error("Data missed");
         } else {
-            const sqlQuery = `INSERT INTO activityzone (id_post, codeDep) VALUES (${idPost}, '${codeDep}')`;
-            try {
-                await this.insertPromise(sqlQuery);
-                return errorObj;
-            } catch (error) {
-                errorObj = {response: true, type: "Erreur d'ajout de la zone d'activité"}
-                return errorObj;
+            for (let i = 0; i < codeDep.length; i++) {
+                const sqlQuery = `INSERT INTO activityzone (id_post, codeDep) VALUES (${idPost}, '${codeDep[i]}')`;
+                try {
+                    await this.insertPromise(sqlQuery);
+                } catch (error) {
+                    errorObj = {response: true, type: "Erreur d'ajout de la zone d'activité"}
+                }
             }
+            return errorObj;
         }
     }
 }

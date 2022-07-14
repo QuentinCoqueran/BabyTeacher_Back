@@ -2,7 +2,7 @@ import express, {Request, Response, Router} from "express";
 import {checkUserConnected} from "../middlewares";
 import {ActivtyZoneService, AuthService} from "../services";
 
-export class ActivityZoneController{
+export class ActivityZoneController {
 
     async deleteActivity(req: Request, res: Response) {
         const isExist = await ActivtyZoneService.getInstance().getById(parseInt(req.params.id));
@@ -57,7 +57,7 @@ export class ActivityZoneController{
 
     async createActivity(req: Request, res: Response) {
         try {
-            const activity = await ActivtyZoneService.getInstance().createActivityZone(req.body);
+            const activity = await ActivtyZoneService.getInstance().createActivityZone(req.body.idPost, req.body.codeDep);
             res.json(activity);
         } catch (err) {
             console.log(err);
