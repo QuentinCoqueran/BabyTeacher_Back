@@ -114,12 +114,12 @@ export class ActivtyZoneService {
         }
     }
 
-    async createActivityZone(activity: Partial<ActivityZoneProps>): Promise<{ response: boolean; type: string }> {
+    async createActivityZone(idPost: number, codeDep: number): Promise<{ response: boolean; type: string }> {
         let errorObj = {response: false, type: "Ok"};
-        if (!activity.id_post || !activity.codeDep) {
+        if (!idPost || !codeDep) {
             throw new Error("Data missed");
         } else {
-            const sqlQuery = `INSERT INTO activityzone (id_post, codeDep) VALUES (${activity.id_post}, '${activity.codeDep}')`;
+            const sqlQuery = `INSERT INTO activityzone (id_post, codeDep) VALUES (${idPost}, '${codeDep}')`;
             try {
                 await this.insertPromise(sqlQuery);
                 return errorObj;

@@ -15,9 +15,6 @@ export class AvailabilityService {
         return AvailabilityService.instance;
     }
 
-    private constructor() {
-    }
-
     insertPromise = (sql: string) => {
         return new Promise((resolve, reject) => {
             db.query(sql, (error, results) => {
@@ -127,26 +124,32 @@ export class AvailabilityService {
             let end: number = 0;
             for (let j = 1; j < availability[i].length; j++) {
                 if(!inSeries && availability[i][j] === "X") {
-                    console.log("start");
+                    if(j === 24) {
+                        start = j - 1;
+                        end = j - 1;
+                        await this.insert(availability, idUser, idPost, start, end, i);
+                    }
                     inSeries = true;
                     start = j - 1;
                     end = j - 1;
                 } else if (inSeries && availability[i][j] === "X") {
-                    console.log("continue");
                     end++;
-                }else if ((inSeries && availability[i][j] !== "X") || (j === 25 && inSeries)) {
-                    console.log("end");
+                } else if ((inSeries && availability[i][j] !== "X")) {
                     inSeries = false;
-                    if(idUser) {
-                        let sqlQuery = `INSERT INTO availability (idUser, day, startHour, endHour) VALUES (${idUser}, '${availability[i][0]}', ${start}, ${end})`;
-                        await AvailabilityService.getInstance().insertPromise(sqlQuery);
-                    }
-                    if(idPost) {
-                        let sqlQuery = `INSERT INTO availability (idPost, day, startHour, endHour) VALUES (${idPost}, '${availability[i][0]}', ${start}, ${end})`;
-                        await AvailabilityService.getInstance().insertPromise(sqlQuery);
-                    }
+                    await this.insert(availability, idUser, idPost, start, end, i);
                 }
             }
+        }
+    }
+
+    public async insert(availability: string [][], idUser: number | undefined , idPost: number | undefined, start : number, end : number, i : number) {
+        if(idUser) {
+            let sqlQuery = `INSERT INTO availability (idUser, day, startHour, endHour) VALUES (${idUser}, '${availability[i][0]}', ${start}, ${end})`;
+            await AvailabilityService.getInstance().insertPromise(sqlQuery);
+        }
+        if(idPost) {
+            let sqlQuery = `INSERT INTO availability (idPost, day, startHour, endHour) VALUES (${idPost}, '${availability[i][0]}', ${start}, ${end})`;
+            await AvailabilityService.getInstance().insertPromise(sqlQuery);
         }
     }
 
