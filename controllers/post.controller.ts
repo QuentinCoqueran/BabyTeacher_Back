@@ -31,7 +31,9 @@ export class PostController {
         if (isExist.length !== 0) {
             try {
                 const post = await PostService.getInstance().getById(parseInt(req.params.id));
-                res.json(post);
+                res.json({
+                    response: post[0]
+                });
             } catch (err) {
                 console.log(err);
                 res.status(400).json(err);
@@ -85,7 +87,9 @@ export class PostController {
                     category: req.body.category,
                     role: role[0].role
                 });
-                res.json(post);
+                res.json({
+                    response: post
+                });
             } catch (err) {
                 console.log(err);
                 res.status(400).json(err);
