@@ -15,9 +15,6 @@ export class SkillService {
         return SkillService.instance;
     }
 
-    private constructor() {
-    }
-
     public async getAll() {
         let sqlQuery: string = "SELECT * FROM skills";
         return new Promise<RowDataPacket[]>((resolve, reject) => {
