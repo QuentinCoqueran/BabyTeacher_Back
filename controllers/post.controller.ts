@@ -30,9 +30,8 @@ export class PostController {
         const isExist = await PostService.getInstance().getById(parseInt(req.params.id));
         if (isExist.length !== 0) {
             try {
-                const post = await PostService.getInstance().getById(parseInt(req.params.id));
                 res.json({
-                    response: post[0]
+                    response: isExist[0]
                 });
             } catch (err) {
                 console.log(err);
@@ -41,6 +40,18 @@ export class PostController {
         } else {
             console.log("This post id doesn't exists")
             res.status(404).end();
+        }
+    }
+
+    async all(req: Request, res: Response) {
+        try {
+            const allPost = await PostService.getInstance().getAll();
+            res.json({
+                response: allPost
+            });
+        } catch (err) {
+            console.log(err);
+            res.status(400).json(err);
         }
     }
 
@@ -118,16 +129,22 @@ export class PostController {
                     });
                 }
                 if (role[0].role === "babysitter") {
-                    const post = await PostService.getInstance().createBabyTeacherPost({
-                        idUser: req.user.id,
-                        hourlyWage: req.body.hourlyWage,
-                        description: req.body.description,
-                    });
-                    const created = await PostService.getInstance().getLastByUserId(req.user.id);
-                    await ActivtyZoneService.getInstance().createActivityZone(created[0].id, req.body.codeDep);
-                    res.send({
-                        response: post
-                    });
+                    if (req.body.codeDep.length > 0) {
+                        const post = await PostService.getInstance().createBabyTeacherPost({
+                            idUser: req.user.id,
+                            hourlyWage: req.body.hourlyWage,
+                            description: req.body.description,
+                        });
+                        const created = await PostService.getInstance().getLastByUserId(req.user.id);
+                        await ActivtyZoneService.getInstance().createActivityZone(created[0].id, req.body.codeDep);
+                        res.send({
+                            response: post
+                        });
+                    } else {
+                        throw new Error("Activity zone is required");
+                    }
+                } else {
+                    throw new Error("You are not a parent or a babysitter");
                 }
             }
         } catch (err) {
@@ -143,6 +160,7 @@ export class PostController {
         router.post('/update/:id', express.json(), checkUserConnected(), this.updatePost.bind(this));
         router.post('/search-post', express.json(), checkUserConnected(), this.searchPost.bind(this));
         router.get('/get/:id', checkUserConnected(), this.show.bind(this));
+        router.get('/all', checkUserConnected(), this.all.bind(this));
         router.delete('/delete/:id', checkUserConnected(), this.deletePost.bind(this));
         return router;
     }
