@@ -121,6 +121,33 @@ export class CategorieController {
         }
     }
 
+    async certifySkill(req: Request, res: Response) {
+        if (req.user !== undefined) {
+            const role = await AuthService.getInstance().getRoleByUserId(req.user.id);
+            if (role[0].role === "babysitter") {
+                const isExist = await SkillService.getInstance().getById(parseInt(req.params.id));
+                if (isExist) {
+                    try{
+                        const skill = await SkillService.getInstance().certify(parseInt(req.params.id), req.body.idDiplome, req.body.userName);
+                        res.send({
+                            response: skill
+                        }).status(200);
+                    }
+                    catch (err) {
+                        console.log(err)
+                        res.status(400).end(); // unauthorized
+                    }
+                } else {
+                    console.log("skill not found");
+                    res.status(404).end();
+                }
+            }
+            if (req.user.role === "parent") {
+                console.log("parent not allowed to certify skill");
+                res.status(401).end(); // unauthorized
+            }
+        }
+    }
 
     buildRoutes(): Router {
         const router = express.Router();
@@ -131,6 +158,7 @@ export class CategorieController {
         router.post('/create', express.json(), checkUserConnected(), this.createCategorie.bind(this));
         router.put('/update/:id', express.json(), checkUserConnected(), this.updateCategorie.bind(this));
         router.delete('/delete/:id', checkUserConnected(), this.deleteCategorie.bind(this));
+        router.post('/certifySkill/:id', express.json(), checkUserConnected(), this.certifySkill.bind(this));
 
         return router;
     }

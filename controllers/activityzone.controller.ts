@@ -57,7 +57,7 @@ export class ActivityZoneController{
 
     async createActivity(req: Request, res: Response) {
         try {
-            const activity = await ActivtyZoneService.getInstance().createActivityZone(req.body);
+            const activity = await ActivtyZoneService.getInstance().createActivityZone(req.body.idPost, req.body.codeDep);
             res.json(activity);
         } catch (err) {
             console.log(err);

@@ -1,6 +1,8 @@
 import {QueryError, RowDataPacket} from "mysql2";
 import {db} from "../utils/mysql.connector";
 import {SkillProps} from "../models/SkillProps.model";
+import {CertifyyUtils} from "../utils";
+
 
 export class SkillService {
 
@@ -79,8 +81,21 @@ export class SkillService {
         }))
     }
 
-    public async update(skill: SkillProps){
-        let sqlQuery = `UPDATE skills SET idUser = ${skill.idUser}, idCategorie = '${skill.idCategorie}', name = '${skill.name}' WHERE id = ${skill.id}`
+    public async update(skill: Partial<SkillProps>){
+        let sqlQuery = `UPDATE skills SET idCategorie = '${skill.idCategorie}', name = '${skill.name}' WHERE id = ${skill.id}`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
+    public async updateCertified(skill: Partial<SkillProps>){
+        let sqlQuery = `UPDATE skills SET name = '${skill.name}', certified = ${skill.certified} WHERE id = ${skill.id}`
+        console.log(sqlQuery);
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if(error){
@@ -103,4 +118,28 @@ export class SkillService {
         }))
     }
 
+    public async certify(idSkill: number, idDiplome: string, userName: string) {
+        if(!idSkill || !idDiplome || !userName){
+            throw new Error("Missing parameters");
+        }else {
+            try {
+                const nomDiplome = await CertifyyUtils.startCertification(idDiplome, userName);
+                let intitule : string = "";
+                for (let i = 0; i < nomDiplome.length; i++) {
+
+                    intitule += nomDiplome[i] + " ";
+                }
+                intitule.replaceAll("'", " ");
+                console.log(intitule);
+                await this.updateCertified({
+                    id: idSkill,
+                    name: intitule,
+                    certified: true
+                });
+            }
+            catch (e : any ) {
+                throw new Error(e);
+            }
+        }
+    }
 }
