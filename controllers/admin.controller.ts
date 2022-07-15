@@ -1,5 +1,5 @@
 import express, {Request, Response, Router} from "express";
-import {AuthService, CategorieService, PostService, SkillService} from "../services";
+import {AuthService, CategorieService, PostService, SignalementService, SkillService} from "../services";
 import {checkAdminConnected} from "../middlewares/admin.middleware";
 
 export class AdminController {
@@ -22,11 +22,12 @@ export class AdminController {
 
     public async getUserById(req: Request, res: Response) {
         try {
+            console.log("test")
             const user = await AuthService.getInstance().getUserById(parseInt(<string>req.params.id));
             if (user) {
                 res.send({
-                    response: user
-                });
+                    user: user[0]
+                })
             }else {
                 res.status(404).end();
             }
@@ -292,8 +293,32 @@ export class AdminController {
         }
     }
 
+    public async getAllSignalements(req: Request, res: Response) {
+        try {
+            const signalements = await SignalementService.getInstance().getAll();
+            if (signalements) {
+                res.send({
+                    response: signalements
+                });
+            }else {
+                res.status(404).end();
+            }
+        } catch (err) {
+            console.log(err)
+            res.status(401).end(); // unauthorized
+        }
+    }
+
+    public async checkAdmin(req: Request, res: Response) {
+        res.send({
+            response: true
+        });
+
+    }
+
     buildRoutes(): Router {
         const router = express.Router();
+        router.get('/', checkAdminConnected(), this.checkAdmin.bind(this));
         router.get("/users", checkAdminConnected(), this.getAllUsers.bind(this));
         router.get("/users/:id", checkAdminConnected(), this.getUserById.bind(this));
         router.get("/users/categories/:id", checkAdminConnected(), this.getUsersByCategoryId.bind(this));
@@ -308,7 +333,7 @@ export class AdminController {
         router.get("/skills", checkAdminConnected(), this.getAllSkills.bind(this));
         router.get("/skills/:id", checkAdminConnected(), this.getSkillById.bind(this));
         router.get("/skills/categories/:id", checkAdminConnected(), this.getSkillsByCategoryId.bind(this));
-
+        router.get("/signalements", checkAdminConnected(), this.getAllSignalements.bind(this));
         router.delete("/users/delete/:id", checkAdminConnected(), this.deleteUserById.bind(this));
         router.delete("/posts/delete/:id", checkAdminConnected(), this.deletePostById.bind(this));
         router.delete("/categories/delete/:id", checkAdminConnected(), this.deleteCategorieById.bind(this));

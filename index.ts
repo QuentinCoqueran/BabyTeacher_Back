@@ -45,7 +45,6 @@ async function startServer(): Promise<void> {
     const app = express();
     const httpServer = http.createServer(app);
     const io = require('socket.io')(httpServer, {
-        //cors: {origin: 'http://localhost:4200'}
         cors: {origin: process.env.FRONT_URL}
     });
     let cors = require('cors');
