@@ -3,4 +3,5 @@ export interface SkillProps {
     idUser: number,
     idCategorie: number,
     name: string,
+    certified: boolean,
 }
