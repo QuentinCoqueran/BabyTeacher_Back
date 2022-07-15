@@ -129,11 +129,10 @@ export class SkillService {
 
                     intitule += nomDiplome[i] + " ";
                 }
-                intitule.replaceAll("'", " ");
-                console.log(intitule);
+                const intituleDiplome = intitule.replace("'", " ");
                 await this.updateCertified({
                     id: idSkill,
-                    name: intitule,
+                    name: intituleDiplome,
                     certified: true
                 });
             }
