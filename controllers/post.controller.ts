@@ -1,5 +1,5 @@
 import express, {Request, Response, Router} from "express";
-import {AuthService, AvailabilityService, ActivtyZoneService} from "../services";
+import {AuthService, AvailabilityService, ActivtyZoneService, CategorieService, SkillService} from "../services";
 import {checkUserConnected} from "../middlewares";
 import {PostService} from "../services";
 
@@ -127,6 +127,19 @@ export class PostController {
                     res.send({
                         response: post
                     });
+                    let idPost: number = created[0].id;
+                    //creation skill pour le post parent
+                    if (req.body.listSkill) {
+
+                        await SkillService.getInstance().addSkillPost({
+                            idPost: idPost,
+                            name: req.body.listSkill
+                        });
+
+                        res.send({
+                            response: post
+                        });
+                    }
                 }
                 if (role[0].role === "babysitter") {
                     if (req.body.codeDep.length > 0) {

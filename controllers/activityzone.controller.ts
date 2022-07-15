@@ -37,7 +37,6 @@ export class ActivityZoneController {
     }
     async getByIdPost(req: Request, res: Response) {
         const isExist = await ActivtyZoneService.getInstance().getByPostId(parseInt(req.params.id));
-        console.log(isExist);
         if (isExist.length !== 0) {
             try {
                 res.json({

@@ -92,7 +92,7 @@ export class ContractService {
     public async add(contract: ContractProps) {
 
         let sqlQueryExist = `SELECT * FROM contracts WHERE idParent LIKE ${contract.idParent} AND idBabysitter LIKE ${contract.idBabysitter} AND (step != 3 OR step != -1)`
-        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+         new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQueryExist, (error: QueryError, results: RowDataPacket[]) => {
                 if (error) {
                     return reject(error)
@@ -103,7 +103,6 @@ export class ContractService {
                 return resolve(results);
             })
         }))
-
 
         contract.validateAt = new Date(new Date().toISOString());
         contract.startDate = new Date(new Date(contract.startDate).toISOString());
@@ -124,9 +123,7 @@ export class ContractService {
         if (contract.hourlyWage <= 0) {
             throw new Error("Hourly wage must be positive");
         }
-        if (contract.numberOfSitting <= 0) {
-            throw new Error("Number of sitting must be positive");
-        }
+
         if (new Date() > contract.validateAt) {
             throw new Error("Validate date must be in the future");
         }
