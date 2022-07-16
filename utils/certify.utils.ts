@@ -4,7 +4,6 @@ export class CertifyyUtils {
 
     public static async startCertification(idDiplome : string, userName: string) {
         const browser = await puppeteer.launch({
-            headless: false,
             defaultViewport: null,
             args: ['--start-maximized', '--incognito']
         }); // à modifier pour ne plus voir chrome
