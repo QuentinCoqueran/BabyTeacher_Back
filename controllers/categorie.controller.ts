@@ -150,9 +150,9 @@ export class CategorieController {
                 const isExist = await SkillService.getInstance().getById(parseInt(req.params.id));
                 if (isExist) {
                     try{
-                        const skill = await SkillService.getInstance().certify(parseInt(req.params.id), req.body.idDiplome, req.body.userName);
+                        await SkillService.getInstance().certify(parseInt(req.params.id), req.body.idDiplome, req.body.userName);
                         res.send({
-                            response: skill
+                            response: true
                         }).status(200);
                     }
                     catch (err) {
