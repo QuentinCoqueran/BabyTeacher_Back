@@ -110,7 +110,9 @@ export class PostController {
             if (isExists) {
                 try {
                     const post = await PostService.getInstance().updateUserById(req.body.idUser, req.body.idPost, req.body.hourlyWage, req.body.description);
-                    res.json(post);
+                    res.json({
+                        response : true
+                    });
                 } catch (err) {
                     console.log(err);
                     res.status(400).json(err);
