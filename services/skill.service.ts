@@ -1,6 +1,8 @@
 import {QueryError, RowDataPacket} from "mysql2";
 import {db} from "../utils/mysql.connector";
 import {SkillProps} from "../models/SkillProps.model";
+import {CertifyyUtils} from "../utils";
+
 
 export class SkillService {
 
@@ -11,9 +13,6 @@ export class SkillService {
             SkillService.instance = new SkillService();
         }
         return SkillService.instance;
-    }
-
-    private constructor() {
     }
 
     public async getAll() {
@@ -118,7 +117,19 @@ export class SkillService {
         }))
     }
 
-    public async delete(id: number) {
+    public async updateCertified(skill: Partial<SkillProps>){
+        let sqlQuery = `UPDATE skills SET detail = '${skill.detail}', certified = ${skill.certified} WHERE id = ${skill.id}`
+        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if(error){
+                    return reject(error)
+                }
+                return resolve(results);
+            })
+        }))
+    }
+
+    public async delete(id: number){
         let sqlQuery = `DELETE FROM skills WHERE id LIKE ${id}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
@@ -146,6 +157,28 @@ export class SkillService {
                     }
                 })
             }))
+        }
+    }
+    public async certify(idSkill: number, idDiplome: string, userName: string) {
+        if(!idSkill || !idDiplome || !userName){
+            throw new Error("Missing parameters");
+        }else {
+            try {
+                const nomDiplome = await CertifyyUtils.startCertification(idDiplome, userName);
+                let intitule : string = "";
+                for (let i = 0; i < nomDiplome.length; i++) {
+                    intitule += nomDiplome[i] + " ";
+                }
+                const intituleDiplome = intitule.replace("'", " ");
+                await this.updateCertified({
+                    id: idSkill,
+                    detail: intituleDiplome,
+                    certified: true
+                });
+            }
+            catch (e : any ) {
+                throw new Error(e);
+            }
         }
     }
 }

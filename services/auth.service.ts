@@ -1,6 +1,6 @@
 import {UserProps} from "../models/UserProps";
 import {db} from "../utils/mysql.connector";
-import {SecurityUtils} from "../utils/security.utils";
+import {SecurityUtils} from "../utils";
 import {RowDataPacket} from "mysql2";
 import {ContractService} from "./contract.service";
 
