@@ -35,7 +35,22 @@ export class ActivityZoneController {
             res.status(404).end();
         }
     }
-
+    async getByIdPost(req: Request, res: Response) {
+        const isExist = await ActivtyZoneService.getInstance().getByPostId(parseInt(req.params.id));
+        if (isExist.length !== 0) {
+            try {
+                res.json({
+                    response : isExist
+                });
+            } catch (err) {
+                console.log(err);
+                res.status(400).json(err);
+            }
+        } else {
+            console.log("This post id doesn't exists")
+            res.status(404).end();
+        }
+    }
     async updateActivity(req: Request, res: Response) {
         if (req.user !== undefined) {
             const isExists = await ActivtyZoneService.getInstance().getById(parseInt(req.params.id));
@@ -71,6 +86,7 @@ export class ActivityZoneController {
         router.post('/add', checkUserConnected(), express.json(), this.createActivity.bind(this));
         router.post('/update/:id', express.json(), checkUserConnected(), this.updateActivity.bind(this));
         router.get('/get/:id', checkUserConnected(), this.show.bind(this));
+        router.get('/getByIdPost/:id', checkUserConnected(), this.getByIdPost.bind(this));
         router.delete('/delete/:id', checkUserConnected(), this.deleteActivity.bind(this));
         return router;
     }
