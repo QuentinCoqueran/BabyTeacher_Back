@@ -451,4 +451,16 @@ export class PostService {
         }
         return postBySkills;
     }
+
+    async updateUserById(idUser:number, idPost:number, hourlyWage : number, description:string) {
+        let sqlQuery = `UPDATE posts SET idUser = ${idUser}, hourlyWage = ${hourlyWage}, description = '${description}' WHERE id = ${idPost}`;
+        return  await new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            })
+        }));
+    }
 }

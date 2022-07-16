@@ -75,11 +75,13 @@ export class AvailabilityController {
             }
             let availability;
             if(req.body.idUser) {
-                availability = await AvailabilityService.getInstance().add(req.body, req.body.idUser, undefined);
+                availability = await AvailabilityService.getInstance().add(req.body.arrayAvaibality, req.body.idUser, undefined);
             }else{
-                availability = await AvailabilityService.getInstance().add(req.body, undefined, req.body.idPost);
+                availability = await AvailabilityService.getInstance().add(req.body.arrayAvaibality, undefined, req.body.idPost);
             }
-            return res.status(201).end(); // Created
+            return res.json({
+                response: true
+            }) // Created
         } catch (err) {
             console.log(err)
             res.status(400).end(); // bad request

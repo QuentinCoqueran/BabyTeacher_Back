@@ -43,6 +43,23 @@ export class PostController {
         }
     }
 
+    async getByUserId(req: Request, res: Response) {
+        const isExist = await PostService.getInstance().getByUser(parseInt(req.params.id));
+        if (isExist.length !== 0) {
+            try {
+                res.json({
+                    response: isExist
+                });
+            } catch (err) {
+                console.log(err);
+                res.status(400).json(err);
+            }
+        } else {
+            console.log("This post id doesn't exists")
+            res.status(404).end();
+        }
+    }
+
     async all(req: Request, res: Response) {
         try {
             const allPost = await PostService.getInstance().getAll();
@@ -80,6 +97,27 @@ export class PostController {
                         res.status(400).json(err);
                     }
                 }
+            } else {
+                console.log("This post id doesn't exists")
+                res.sendStatus(404).end();
+            }
+        }
+    }
+
+    async updatePostUser(req: Request, res: Response) {
+        if (req.user !== undefined) {
+            const isExists = await PostService.getInstance().getById(req.body.idUser);
+            if (isExists) {
+                try {
+                    const post = await PostService.getInstance().updateUserById(req.body.idUser, req.body.idPost, req.body.hourlyWage, req.body.description);
+                    res.json({
+                        response : true
+                    });
+                } catch (err) {
+                    console.log(err);
+                    res.status(400).json(err);
+                }
+
             } else {
                 console.log("This post id doesn't exists")
                 res.sendStatus(404).end();
@@ -171,8 +209,10 @@ export class PostController {
         const router = express.Router();
         router.post('/add', checkUserConnected(), express.json(), this.createPost.bind(this));
         router.post('/update/:id', express.json(), checkUserConnected(), this.updatePost.bind(this));
+        router.post('/updatePostUser', express.json(), checkUserConnected(), this.updatePostUser.bind(this));
         router.post('/search-post', express.json(), checkUserConnected(), this.searchPost.bind(this));
         router.get('/get/:id', checkUserConnected(), this.show.bind(this));
+        router.get('/getByUserId/:id', checkUserConnected(), this.getByUserId.bind(this));
         router.get('/all', checkUserConnected(), this.all.bind(this));
         router.delete('/delete/:id', checkUserConnected(), this.deletePost.bind(this));
         return router;
