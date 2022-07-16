@@ -15,9 +15,6 @@ export class SkillService {
         return SkillService.instance;
     }
 
-    private constructor() {
-    }
-
     public async getAll() {
         let sqlQuery: string = "SELECT * FROM skills";
         return new Promise<RowDataPacket[]>((resolve, reject) => {
@@ -95,8 +92,7 @@ export class SkillService {
     }
 
     public async updateCertified(skill: Partial<SkillProps>){
-        let sqlQuery = `UPDATE skills SET name = '${skill.name}', certified = ${skill.certified} WHERE id = ${skill.id}`
-        console.log(sqlQuery);
+        let sqlQuery = `UPDATE skills SET detail = '${skill.detail}', certified = ${skill.certified} WHERE id = ${skill.id}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if(error){
@@ -127,13 +123,12 @@ export class SkillService {
                 const nomDiplome = await CertifyyUtils.startCertification(idDiplome, userName);
                 let intitule : string = "";
                 for (let i = 0; i < nomDiplome.length; i++) {
-
                     intitule += nomDiplome[i] + " ";
                 }
                 const intituleDiplome = intitule.replace("'", " ");
                 await this.updateCertified({
                     id: idSkill,
-                    name: intituleDiplome,
+                    detail: intituleDiplome,
                     certified: true
                 });
             }
