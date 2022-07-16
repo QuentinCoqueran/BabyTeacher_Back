@@ -316,6 +316,22 @@ export class AdminController {
 
     }
 
+    public async getSignalementByIdProfile(req: Request, res: Response) {
+        try {
+            const signalement = await SignalementService.getInstance().getByProfileId(parseInt(<string>req.params.id));
+            if (signalement) {
+                res.send({
+                    response: signalement
+                });
+            }else {
+                res.status(404).end();
+            }
+        } catch (err) {
+            console.log(err)
+            res.status(401).end(); // unauthorized
+        }
+    }
+
     buildRoutes(): Router {
         const router = express.Router();
         router.get('/', checkAdminConnected(), this.checkAdmin.bind(this));
@@ -334,6 +350,7 @@ export class AdminController {
         router.get("/skills/:id", checkAdminConnected(), this.getSkillById.bind(this));
         router.get("/skills/categories/:id", checkAdminConnected(), this.getSkillsByCategoryId.bind(this));
         router.get("/signalements", checkAdminConnected(), this.getAllSignalements.bind(this));
+        router.get("/signalements/profile/:id", checkAdminConnected(), this.getSignalementByIdProfile.bind(this));
         router.delete("/users/delete/:id", checkAdminConnected(), this.deleteUserById.bind(this));
         router.delete("/posts/delete/:id", checkAdminConnected(), this.deletePostById.bind(this));
         router.delete("/categories/delete/:id", checkAdminConnected(), this.deleteCategorieById.bind(this));
