@@ -41,11 +41,8 @@ export function checkAdminConnected(): RequestHandler {
             const role = await AuthService.getInstance().getRoleByUserId(user[0].id);
 
             if (role[0].role !== 'admin') {
-                console.log("pas admin")
                 res.status(401).end();
                 return;
-            }else {
-                console.log("admin")
             }
 
             next();
