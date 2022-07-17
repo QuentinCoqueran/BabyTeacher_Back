@@ -52,7 +52,7 @@ export class ActivtyZoneService {
     }
 
     public async getByPostId(id_post: number) {
-        let sqlQuery = `SELECT * FROM activityzone WHERE availability.id_post LIKE ${id_post}`
+        let sqlQuery = `SELECT * FROM activityzone WHERE id_post = ${id_post}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if (error) {

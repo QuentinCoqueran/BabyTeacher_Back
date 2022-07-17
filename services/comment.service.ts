@@ -67,7 +67,7 @@ export class CommentService {
     public async add(comment: CommentProps) {
         // return error si idUserCoMMENT EXISTE DEJA POUR UN PROFILE
         let sqlExist = `SELECT * FROM comments WHERE idUserComment = ${comment.idUserComment} AND idProfile = ${comment.idProfile}`
-        return new Promise<RowDataPacket[]>(((resolve, reject) => {
+        new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlExist, (error: QueryError, results: RowDataPacket[]) => {
                 if (error) {
                     return reject(error)

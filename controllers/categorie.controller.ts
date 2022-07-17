@@ -36,6 +36,28 @@ export class CategorieController {
         }
     }
 
+    async getSkillByUserId(req: Request, res: Response) {
+        try {
+            const skills = await SkillService.getInstance().getByUserId(req.params.id);
+            res.send({
+                response: skills
+            });
+        } catch (err) {
+            console.log(err)
+            res.status(401).end(); // unauthorized
+        }
+    }
+    async getSkillByPost(req: Request, res: Response) {
+        try {
+            const skills = await SkillService.getInstance().getByPost(req.params.id);
+            res.send({
+                response: skills
+            });
+        } catch (err) {
+            console.log(err)
+            res.status(401).end(); // unauthorized
+        }
+    }
     async getSkillByCategorie(req: Request, res: Response) {
         try {
             const skills = await SkillService.getInstance().getByCategorie(parseInt(<string>req.params.idCategorie));
@@ -128,9 +150,9 @@ export class CategorieController {
                 const isExist = await SkillService.getInstance().getById(parseInt(req.params.id));
                 if (isExist) {
                     try{
-                        const skill = await SkillService.getInstance().certify(parseInt(req.params.id), req.body.idDiplome, req.body.userName);
+                        await SkillService.getInstance().certify(parseInt(req.params.id), req.body.idDiplome, req.body.userName);
                         res.send({
-                            response: skill
+                            response: true
                         }).status(200);
                     }
                     catch (err) {
@@ -153,6 +175,8 @@ export class CategorieController {
         const router = express.Router();
         router.get('/getAllCategories', checkUserConnected(), this.getAll.bind(this));
         router.get('/getSkillsByUserLogin/:login', checkUserConnected(), this.getSkillByUser.bind(this));
+        router.get('/getSkillsByUserId/:id', checkUserConnected(), this.getSkillByUserId.bind(this));
+        router.get('/getSkillsByPost/:id', checkUserConnected(), this.getSkillByPost.bind(this));
         router.get('/getSkillsByCategorieId/:idCategorie', checkUserConnected(), this.getSkillByCategorie.bind(this));
         router.get('/:id',this.getById.bind(this));
         router.post('/create', express.json(), checkUserConnected(), this.createCategorie.bind(this));

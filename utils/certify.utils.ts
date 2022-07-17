@@ -4,7 +4,7 @@ export class CertifyyUtils {
 
     public static async startCertification(idDiplome : string, userName: string) {
         const browser = await puppeteer.launch({
-            headless: false,
+            headless: true,
             defaultViewport: null,
             args: ['--start-maximized', '--incognito']
         }); // à modifier pour ne plus voir chrome
@@ -26,7 +26,7 @@ export class CertifyyUtils {
     }
 
     public static async checkCertification(page:  any, browser: any) {
-        return await page.waitForSelector("#content > div > sd-verif-attestation > div > div.informations-responsive > section:nth-child(2) > article", {timeout: 10000})
+        return await page.waitForSelector("#content > div > sd-verif-attestation > div > div.informations-responsive > section:nth-child(2) > article", {timeout: 15000})
         .then(async (page: any) => {
             console.log("Certification validée");
             const nom = await page.evaluate(() => {
