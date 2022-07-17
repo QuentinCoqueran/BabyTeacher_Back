@@ -124,9 +124,6 @@ export class ContractService {
             throw new Error("Hourly wage must be positive");
         }
 
-        if (new Date() > contract.validateAt) {
-            throw new Error("Validate date must be in the future");
-        }
         if (new Date() > contract.startDate) {
             throw new Error("startDate must be in the future");
         }
