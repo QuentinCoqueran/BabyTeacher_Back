@@ -212,6 +212,15 @@ export class AuthController {
             res.status(400).end();
         }
     }
+    async getAllUsersNonBanned(req: Request, res: Response) {
+        try {
+            let user = await AuthService.getInstance().getAllUsersNonBanned();
+            res.json(user);
+        } catch (err) {
+            console.log(err)
+            res.status(400).end();
+        }
+    }
 
     deleteSkillsBabysitter(req: Request, res: Response) {
         AuthService.getInstance().deleteSkillsBabysitter(req.params.id).then(() => {
@@ -238,6 +247,7 @@ export class AuthController {
         router.get('/getFirstConnexion', checkUserConnected(), this.getFirstConnexion.bind(this));
         router.get('/getUserById/:id', checkUserConnected(), this.getUserById.bind(this));
         router.get('/getAllUsers', express.json(), this.getAllUsers.bind(this));
+        router.get('/getAllUsersNonBanned', express.json(), this.getAllUsersNonBanned.bind(this));
         router.delete('/deleteSkillsBabysitter/:id', express.json(), this.deleteSkillsBabysitter.bind(this));
         return router;
     }

@@ -320,6 +320,18 @@ export class AuthService {
         }
     }
 
+    async getAllUsersNonBanned() {
+        const sql = `SELECT * FROM users WHERE banned = 0 OR banned IS NULL`;
+        return new Promise<RowDataPacket[]>((resolve, reject) => {
+            db.query(sql, (error, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
+        });
+    }
+
     async getAllUsers() {
         const sql = `SELECT * FROM users`;
         return new Promise<RowDataPacket[]>((resolve, reject) => {
