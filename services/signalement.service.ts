@@ -16,7 +16,7 @@ export class SignalementService {
     private constructor() {
     }
 
-    public async getAll(){
+    public async getAll() {
         let sqlQuery: string = "SELECT * FROM signalements";
         return new Promise<RowDataPacket[]>((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
@@ -28,11 +28,11 @@ export class SignalementService {
         });
     }
 
-    public getById(id: number){
+    public getById(id: number) {
         let sqlQuery = `SELECT * FROM signalements WHERE id LIKE ${id}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
+                if (error) {
                     return reject(error)
                 }
                 return resolve(results);
@@ -40,11 +40,11 @@ export class SignalementService {
         }))
     }
 
-    public async getByProfileId(profileId: number){
+    public async getByProfileId(profileId: number) {
         let sqlQuery = `SELECT * FROM signalements WHERE signalements.idProfile LIKE ${profileId}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
+                if (error) {
                     return reject(error)
                 }
                 return resolve(results);
@@ -52,11 +52,11 @@ export class SignalementService {
         }))
     }
 
-    public async getBySignalerId(signalerId: number){
+    public async getBySignalerId(signalerId: number) {
         let sqlQuery = `SELECT * FROM signalements WHERE signalements.idSignaler LIKE ${signalerId}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
+                if (error) {
                     return reject(error)
                 }
                 return resolve(results);
@@ -64,11 +64,13 @@ export class SignalementService {
         }))
     }
 
-    public async add(signalement: SignalementProps){
-        let sqlQuery = `INSERT INTO signalements (idProfile, idSignaler, dateTime, reason) VALUES (${signalement.idProfile}, ${signalement.idSignaler}, '${signalement.dateTime}', '${signalement.reason}')`
+    public async add(signalement: SignalementProps) {
+        let date = new Date(new Date(signalement.dateTime).toISOString());
+        const validateDateString = date.toJSON().slice(0, 19).replace('T', ' ');
+        let sqlQuery = `INSERT INTO signalements (idProfile, idSignaler, dateTime, reason) VALUES (${signalement.idProfile}, ${signalement.idSignaler}, '${validateDateString}', '${signalement.reason}')`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
+                if (error) {
                     return reject(error)
                 }
                 return resolve(results);
@@ -76,11 +78,11 @@ export class SignalementService {
         }))
     }
 
-    public async update(signalement: SignalementProps){
+    public async update(signalement: SignalementProps) {
         let sqlQuery = `UPDATE signalements SET idProfile = ${signalement.idProfile}, idSignaler = ${signalement.idSignaler}, dateTime = '${signalement.dateTime}', reason = '${signalement.reason}' WHERE id = ${signalement.id}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
+                if (error) {
                     return reject(error)
                 }
                 return resolve(results);
@@ -88,11 +90,11 @@ export class SignalementService {
         }))
     }
 
-    public async delete(id: number){
+    public async delete(id: number) {
         let sqlQuery = `DELETE FROM signalements WHERE id = ${id}`
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
-                if(error){
+                if (error) {
                     return reject(error)
                 }
                 return resolve(results);

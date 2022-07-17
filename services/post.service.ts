@@ -39,6 +39,7 @@ export class PostService {
             });
         });
     }
+
     public async getById(id: number) {
         let sqlQuery = `SELECT * FROM posts WHERE id LIKE ${id}`;
         return new Promise<RowDataPacket[]>(((resolve, reject) => {
@@ -77,7 +78,7 @@ export class PostService {
 
     public async createParentPost(post: Partial<PostProps>): Promise<{ response: boolean; type: string }> {
         let errorObj = {response: false, type: "Ok"};
-        if (!post.idUser || !post.cityCode || !post.hourlyWage || !post.description  || !post.numberChild) {
+        if (!post.idUser || !post.cityCode || !post.hourlyWage || !post.description || !post.numberChild) {
             throw new Error("Data missed");
         } else {
             // check if description contains "'" and put "\" before
@@ -283,7 +284,7 @@ export class PostService {
             return null;
         }
         if (param.role === "parent") {
-             postByAvailabilityParent = await this.getPostByAvailabilityParent(postsByactivityZone, param.availability);
+            postByAvailabilityParent = await this.getPostByAvailabilityParent(postsByactivityZone, param.availability);
             currentPosts = postByAvailabilityParent;
         }
         if (param.role === "babysitter") {
@@ -311,8 +312,10 @@ export class PostService {
     }
 
     pushInArray(current: any[], last: RowDataPacket[]) {
-        if (current[0].idPost === undefined) {
-            current = current[0];
+        if (current[0]) {
+            if (current[0].idPost === undefined) {
+                current = current[0];
+            }
         }
         if (current.length > 0) {
             for (let i = 0; i < current.length; i++) {
@@ -447,5 +450,17 @@ export class PostService {
             }
         }
         return postBySkills;
+    }
+
+    async updateUserById(idUser:number, idPost:number, hourlyWage : number, description:string) {
+        let sqlQuery = `UPDATE posts SET idUser = ${idUser}, hourlyWage = ${hourlyWage}, description = '${description}' WHERE id = ${idPost}`;
+        return  await new Promise<RowDataPacket[]>(((resolve, reject) => {
+            db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            })
+        }));
     }
 }

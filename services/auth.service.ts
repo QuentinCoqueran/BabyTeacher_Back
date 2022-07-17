@@ -48,9 +48,10 @@ export class AuthService {
             let ageString = user.age;
             let sexeNumber = parseInt(String(user.sexe));
             let emailString = user.email;
+            let photoString = "../../assets/avatar.png";
 
-            const sql = `INSERT INTO users (name, lastname,password,login,id_role,age,sexe,email) VALUES ('${nameString}', '${lastNameString}','${passwordString}','${loginString}',
-            (SELECT id FROM role WHERE role = '${roleString}'), '${ageString}', '${sexeNumber}',  '${emailString}')`;
+            const sql = `INSERT INTO users (name, lastname,password,login,id_role,age,sexe,email, photo) VALUES ('${nameString}', '${lastNameString}','${passwordString}','${loginString}',
+            (SELECT id FROM role WHERE role = '${roleString}'), '${ageString}', '${sexeNumber}',  '${emailString}', '${photoString}')`;
             try {
                 await this.insertPromise(sql);
                 return errorObj;
