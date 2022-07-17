@@ -6,7 +6,7 @@ export class CertifyyUtils {
         const browser = await puppeteer.launch({
             headless: true,
             defaultViewport: null,
-            args: ['--start-maximized', '--incognito']
+            args: ['--start-maximized', '--incognito', '--no-sandbox']
         }); // à modifier pour ne plus voir chrome
         const page = await browser.newPage();
         await page.goto(`https://diplome.gouv.fr/sanddiplome/verif`, { waitUntil: 'networkidle2' });
