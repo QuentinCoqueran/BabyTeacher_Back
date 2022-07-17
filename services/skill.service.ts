@@ -49,6 +49,7 @@ export class SkillService {
                 if (error) {
                     return reject(error)
                 }
+
                 return resolve(results);
             })
         }))
