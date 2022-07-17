@@ -23,8 +23,8 @@ export class AdminController {
 
     public async getUserById(req: Request, res: Response) {
         try {
-            console.log("test")
             const user = await AuthService.getInstance().getUserById(parseInt(req.params.id));
+
             if (user) {
                 res.send({
                     user: user[0]
