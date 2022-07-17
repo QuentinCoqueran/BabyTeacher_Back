@@ -35,7 +35,6 @@ export function checkAdminConnected(): RequestHandler {
                 res.status(401).end();
                 return;
             }
-
             const user = await AuthService.getInstance().getUserById(userId[0].id_user);
             req.user = user[0];
             const role = await AuthService.getInstance().getRoleByUserId(user[0].id);
@@ -44,7 +43,6 @@ export function checkAdminConnected(): RequestHandler {
                 res.status(401).end();
                 return;
             }
-
             next();
         } catch (err) {
             res.status(401).end();
