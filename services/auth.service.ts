@@ -82,8 +82,8 @@ export class AuthService {
         let password = SecurityUtils.sha512(data.password);
         try {
             let resultQuery = await this.getUserByLoginPass(login, password);
-            const user_id = resultQuery[0].id;
             if (resultQuery.length > 0) {
+                const user_id = resultQuery[0].id;
                 let token = SecurityUtils.generateToken();
                 let sql = "INSERT INTO sessions (token, id_user) VALUES ('" + token + "','" + user_id + "')";
                 try {
@@ -150,7 +150,7 @@ export class AuthService {
     }
 
     public async getUserByLoginPass(login: string, password: string) {
-        const sql = `SELECT * FROM users WHERE login = '${login}' AND password = '${password}' AND banned != 1`;
+        const sql = `SELECT * FROM users WHERE login = '${login}' AND password = '${password}' AND (banned is NULL OR banned = 0)`;
         return new Promise<RowDataPacket[]>((resolve, reject) => {
             db.query(sql, (error, results: RowDataPacket[]) => {
                 if (error) {
