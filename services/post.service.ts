@@ -383,7 +383,7 @@ export class PostService {
 
     private async getByActivityZone(code: number) {
 
-        let sqlQuery = `SELECT max(posts.id) as idPost,idUser, \`city-code\` ,hourlyWage,description,ageChild,numberChild,type, activityzone.codeDep from posts INNER JOIN activityzone ON posts.id = activityzone.id_post  where activityzone.codeDep = '${code}' GROUP BY idUser`
+        let sqlQuery = `SELECT max(posts.id) as idPost,idUser, \`city-code\` ,hourlyWage,description,ageChild,numberChild,type, activityzone.codeDep from posts INNER JOIN activityzone ON posts.id = activityzone.id_post  where activityzone.codeDep = '${code}' GROUP BY idUser, idUser, \`city-code\` ,hourlyWage,description,ageChild,numberChild,type, activityzone.codeDep`;
 
         let posts = await new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
