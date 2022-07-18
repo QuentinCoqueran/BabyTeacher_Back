@@ -11,4 +11,5 @@ export * from './signalement.service';
 export * from './skill.service';
 export * from './test.service';
 export * from './activityzone.service';
+export * from './stats.service';
 
