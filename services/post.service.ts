@@ -367,7 +367,9 @@ export class PostService {
     }
 
     private async getByCityCode(code: number) {
-        let sqlQuery = "SELECT max(posts.id) as idPost,idUser,`city-code`,hourlyWage,description,ageChild,numberChild,type FROM posts WHERE `city-code` LIKE '" + code + "%' GROUP BY idUser";
+        //let sqlQuery = `SELECT max(posts.id) as idPost,idUser, city-code,hourlyWage,description,ageChild,numberChild,type FROM posts WHERE \`city-code\` LIKE '${code}%' GROUP BY idUser, city-code`;
+
+        let sqlQuery = `SELECT max(posts.id) as idPost, idUser, \`city-code\`, hourlyWage, description, ageChild, numberChild, \`type\` FROM posts WHERE \`city-code\` LIKE '${code}%' GROUP BY idUser, \`city-code\`, hourlyWage, description, ageChild, numberChild, \`type\``;
         let posts = await new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if (error) {
@@ -380,7 +382,9 @@ export class PostService {
     }
 
     private async getByActivityZone(code: number) {
-        let sqlQuery = 'select max(posts.id) as idPost,idUser,`city-code`,hourlyWage,description,ageChild,numberChild,type, activityzone.codeDep from posts INNER JOIN activityzone ON posts.id = activityzone.id_post  where activityzone.codeDep = ' + code + ' GROUP BY idUser'
+
+        let sqlQuery = `SELECT max(posts.id) as idPost,idUser, \`city-code\` ,hourlyWage,description,ageChild,numberChild,type, activityzone.codeDep from posts INNER JOIN activityzone ON posts.id = activityzone.id_post  where activityzone.codeDep = '${code}' GROUP BY idUser`
+
         let posts = await new Promise<RowDataPacket[]>(((resolve, reject) => {
             db.query(sqlQuery, (error: QueryError, results: RowDataPacket[]) => {
                 if (error) {
