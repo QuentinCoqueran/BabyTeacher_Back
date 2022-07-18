@@ -150,7 +150,7 @@ export class AuthService {
     }
 
     public async getUserByLoginPass(login: string, password: string) {
-        const sql = `SELECT * FROM users WHERE login = '${login}' AND password = '${password}'`;
+        const sql = `SELECT * FROM users WHERE login = '${login}' AND password = '${password}' AND banned != 1`;
         return new Promise<RowDataPacket[]>((resolve, reject) => {
             db.query(sql, (error, results: RowDataPacket[]) => {
                 if (error) {
