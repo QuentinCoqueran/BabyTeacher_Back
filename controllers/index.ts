@@ -11,3 +11,4 @@ export * from './session.controller';
 export * from './signalement.controller';
 export * from './admin.controller';
 export * from './activityzone.controller';
+export * from './stats.controller';
