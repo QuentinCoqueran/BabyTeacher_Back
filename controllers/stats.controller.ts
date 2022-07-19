@@ -8,8 +8,9 @@ export class StatsController {
         try {
             const count = await StatsService.getInstance().getUserCount();
             if (count) {
+                let result = count[0]["COUNT(*)"]
                 res.send({
-                    response: count
+                    result
                 });
             }else {
                 res.status(404).end();
@@ -20,9 +21,27 @@ export class StatsController {
         }
     }
 
+    public async getAllContratCount(req: Request, res: Response) {
+        try {
+            const contrats = await StatsService.getInstance().getCountAllContrat();
+            if (contrats) {
+                let result = contrats[0]["COUNT(*)"]
+                res.send({
+                    result
+                });
+            } else {
+                res.status(404).end();
+            }
+        } catch (err) {
+            console.log(err)
+            res.status(401).end(); // unauthorized
+        }
+    }
+
     buildRoutes() {
         const router = express.Router();
         router.get('/userCount', this.getUserCount.bind(this));
+        router.get('/contratCreatedCount', this.getAllContratCount.bind(this));
         return router;
     }
 }
