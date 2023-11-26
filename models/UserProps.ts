@@ -4,7 +4,7 @@ export interface UserProps {
     lastname?: string,
     login?: string,
     password?: string,
-    role?:string,
+    role?: string,
     age?: number,
     sexe?: number,
     photo?: string,

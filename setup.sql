@@ -1,16 +1,12 @@
-CREATE DATABASE babyteacher;
-
 USE babyteacher;
 
-GRANT ALL PRIVILEGES ON *.* TO 'babyuser'@'%';
-
-CREATE TABLE ActivityZone (
+CREATE TABLE activityZone (
     id INT AUTO_INCREMENT PRIMARY KEY,
     codeDep INT NOT NULL,
     id_post INT NOT NULL
 );
 
-CREATE TABLE Availability (
+CREATE TABLE availability (
     id INT AUTO_INCREMENT PRIMARY KEY,
     idUser INT,
     idPost INT,
@@ -19,12 +15,12 @@ CREATE TABLE Availability (
     endHour VARCHAR(255)
 );
 
-CREATE TABLE Categorie (
+CREATE TABLE categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE Comment (
+CREATE TABLE comments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     idProfile INT NOT NULL,
     idUserComment INT NOT NULL,
@@ -33,7 +29,7 @@ CREATE TABLE Comment (
     note INT NOT NULL
 );
 
-CREATE TABLE Contract (
+CREATE TABLE contracts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     idParent INT NOT NULL,
     idBabysitter INT NOT NULL,
@@ -48,7 +44,7 @@ CREATE TABLE Contract (
     step INT NOT NULL
 );
 
-CREATE TABLE Post (
+CREATE TABLE posts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     idUser INT NOT NULL,
     cityCode VARCHAR(255) NOT NULL,
@@ -59,12 +55,12 @@ CREATE TABLE Post (
     type VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE Role (
+CREATE TABLE role (
     id INT AUTO_INCREMENT PRIMARY KEY,
     role VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE Session (
+CREATE TABLE sessions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     expirationDate DATETIME,
     createdAt DATETIME,
@@ -72,7 +68,7 @@ CREATE TABLE Session (
     token VARCHAR(255)
 );
 
-CREATE TABLE Signalement (
+CREATE TABLE signalements (
     id INT AUTO_INCREMENT PRIMARY KEY,
     idProfile INT NOT NULL,
     idSignaler INT NOT NULL,
@@ -80,12 +76,12 @@ CREATE TABLE Signalement (
     reason TEXT NOT NULL
 );
 
-CREATE TABLE Test (
+CREATE TABLE test (
     name VARCHAR(255) NOT NULL,
     lastname VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE Skill (
+CREATE TABLE skills (
     id INT AUTO_INCREMENT PRIMARY KEY,
     idUser INT,
     idCategorie INT,
@@ -95,16 +91,23 @@ CREATE TABLE Skill (
     detail TEXT
 );
 
-CREATE TABLE User (
+CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255),
     lastname VARCHAR(255),
     login VARCHAR(255),
     password VARCHAR(255),
-    role VARCHAR(255),
+    id_role INT,
     age INT,
     sexe INT,
     photo VARCHAR(255),
     email VARCHAR(255),
     description TEXT
 );
+
+INSERT INTO role (role) VALUES ('admin');
+INSERT INTO role (role) VALUES ('babysitter');
+INSERT INTO role (role) VALUES ('parent');
+
+INSERT INTO users (name, lastname, login, password, id_role, age, sexe, photo, email, description) VALUES ('admin', 'admin', 'admin', 'admin', 1, 0, 0, 'admin', 'admin', 'admin');
+
