@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image for the backend
-    - run: docker build . --file Dockerfile_back --tag babyteacher-back:$(date +%s)
-    - run: docker push myRegistry.com/babyteacher-back
+      - uses: actions/checkout@v3
+      - name: Build the Docker image for the backend
+        run: docker build . --file Dockerfile_back --tag babyteacher-back:$(date +%s) && docker push myRegistry.com/babyteacher-back
