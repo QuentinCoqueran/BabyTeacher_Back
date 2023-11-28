@@ -15,4 +15,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build the Docker image for the backend
-        run: docker build . --file Dockerfile_back --tag myRegistry.com/babyteacher-back:$(date +%s) && docker push myRegistry.com/babyteacher-back
+        run: docker login rg.fr-par.scw.cloud/babyteacher-regitstry -u nologin --password-stdin <<< ${{ vars.REGISTRY_PASS }}
+             docker build . --file Dockerfile_back --tag rg.fr-par.scw.cloud/babyteacher-registry/backend:$(date +%s)
+             docker push rg.fr-par.scw.cloud/babyteacher-registry/backend
