@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Docker login to registry
-      run: echo "${{ env.REGISTRY_PASS }}" | docker login rg.fr-par.scw.cloud/babyteacher-regitstry -u nologin --password-stdin
+      run: echo "${{ babyteacher.REGISTRY_PASS }}" | docker login rg.fr-par.scw.cloud/babyteacher-regitstry -u nologin --password-stdin
     - name: Build the Docker image for the backend
       run: docker build . -f Dockerfile_back --tag rg.fr-par.scw.cloud/babyteacher-registry/backend:$(date +%s)
     - name: Push the image to private registry
