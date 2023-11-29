@@ -13,7 +13,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: Docker login to registry
       run: echo "${{ secrets.REGISTRY_PASS }}" | docker login rg.fr-par.scw.cloud/babyteacher-regitstry -u nologin --password-stdin
-    - name: Build the Docker image for the database
-      run: docker build . -f Dockerfile_mysql --tag rg.fr-par.scw.cloud/babyteacher-registry/database:latest
+    - name: Build the Docker image for the mysql database
+      run: docker build . -f Dockerfile_mysql --tag rg.fr-par.scw.cloud/babyteacher-registry/mysql:latest
     - name: Push the image to private registry
-      run: docker push rg.fr-par.scw.cloud/babyteacher-registry/database
+      run: docker push rg.fr-par.scw.cloud/babyteacher-registry/mysql
