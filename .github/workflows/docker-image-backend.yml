@@ -12,8 +12,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Docker login to registry
-    - run: docker login rg.fr-par.scw.cloud/babyteacher-regitstry -u nologin --password-stdin <<< ${{ vars.REGISTRY_PASS }}
+      run: docker login rg.fr-par.scw.cloud/babyteacher-regitstry -u nologin --password-stdin <<< ${{ vars.REGISTRY_PASS }}
     - name: Build the Docker image for the backend
-    - run: docker build . -f Dockerfile_back --tag rg.fr-par.scw.cloud/babyteacher-registry/backend:$(date +%s)
+      run: docker build . -f Dockerfile_back --tag rg.fr-par.scw.cloud/babyteacher-registry/backend:$(date +%s)
     - name: Push the image to private registry
-    - run: docker push rg.fr-par.scw.cloud/babyteacher-registry/backend
+      run: docker push rg.fr-par.scw.cloud/babyteacher-registry/backend
