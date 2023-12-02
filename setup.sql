@@ -1,5 +1,3 @@
-CREATE DATABASE babyteacher;
-
 USE babyteacher;
 
 GRANT ALL PRIVILEGES ON *.* TO 'babyuser'@'%';
