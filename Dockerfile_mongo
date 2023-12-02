@@ -1,0 +1,8 @@
+FROM mongo:latest
+
+# Définir les variables d'environnement pour l'utilisateur MongoDB
+ENV MONGO_INITDB_ROOT_USERNAME=babyUser
+ENV MONGO_INITDB_ROOT_PASSWORD=toto
+
+# Exposer le port par défaut de MongoDB
+EXPOSE 27017
