@@ -40,7 +40,7 @@ CREATE TABLE contracts (
     hourlyWage DECIMAL(10, 2) NOT NULL,
     qrCode INT,
     numberOfSitting INT NOT NULL,
-    numberOfHoursDone INT NOT NULL,
+    numberOfHourDone INT NOT NULL,
     startDate DATE NOT NULL,
     endDate DATE NOT NULL,
     step INT NOT NULL
