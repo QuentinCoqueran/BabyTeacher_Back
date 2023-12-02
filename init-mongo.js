@@ -14,3 +14,5 @@ db.createUser(
         ]
     }
 );
+
+db.createCollection("users");
