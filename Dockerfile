@@ -2,10 +2,10 @@ FROM mysql:latest
 
 RUN chown -R mysql:root /var/lib/mysql/
 
-ENV MYSQL_DATABASE=babyteacher
-ENV MYSQL_USER=babyuser
-ENV MYSQL_PASSWORD=pass
-ENV MYSQL_ROOT_PASSWORD=pass
+ARG MYSQL_DATABASE=babyteacher
+ARG MYSQL_USER=babyuser
+ARG MYSQL_PASSWORD=pass
+ARG MYSQL_ROOT_PASSWORD=pass
 
 ADD setup.sql /docker-entrypoint-initdb.d
 
