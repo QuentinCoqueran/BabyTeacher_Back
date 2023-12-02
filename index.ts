@@ -40,7 +40,6 @@ async function startServer(): Promise<void> {
 
     db.connect();
 
-
     const port = process.env.PORT || 3000;
     const app = express();
     const httpServer = http.createServer(app);
@@ -53,43 +52,43 @@ async function startServer(): Promise<void> {
 
     // ---> Déclaration est appels aux controllers
     const authController = new AuthController();
-    app.use('/auth', authController.buildRoutes());
+    app.use('/api/auth', authController.buildRoutes());
 
     const categorieController = new CategorieController();
-    app.use('/categorie', categorieController.buildRoutes());
+    app.use('/api/categorie', categorieController.buildRoutes());
 
     const testController = new TestController();
-    app.use('/test', testController.buildRoutes());
+    app.use('/api/test', testController.buildRoutes());
 
     const postController = new PostController();
-    app.use('/post', postController.buildRoutes());
+    app.use('/api/post', postController.buildRoutes());
 
     const availabilityController = new AvailabilityController();
-    app.use('/availability', availabilityController.buildRoutes());
+    app.use('/api/availability', availabilityController.buildRoutes());
 
     const commentController = new CommentController();
-    app.use('/comment', commentController.buildRoutes());
+    app.use('/api/comment', commentController.buildRoutes());
 
     const contractController = new ContractController();
-    app.use('/contract', contractController.buildRoutes());
+    app.use('/api/contract', contractController.buildRoutes());
 
     const messageController = new MessageController();
-    app.use('/message', messageController.buildRoutes());
+    app.use('/api/message', messageController.buildRoutes());
 
     const roleController = new RoleController();
-    app.use('/role', roleController.buildRoutes());
+    app.use('/api/role', roleController.buildRoutes());
 
     const sessionController = new SessionController();
-    app.use('/session', sessionController.buildRoutes());
+    app.use('/api/session', sessionController.buildRoutes());
 
     const signalementController = new SignalementController();
-    app.use('/signalement', signalementController.buildRoutes());
+    app.use('/api/signalement', signalementController.buildRoutes());
 
     const adminController = new AdminController();
-    app.use('/admin', adminController.buildRoutes());
+    app.use('/api/admin', adminController.buildRoutes());
 
     const activityZoneController = new ActivityZoneController();
-    app.use('/activityZone', activityZoneController.buildRoutes());
+    app.use('/api/activityZone', activityZoneController.buildRoutes());
 
     io.on('connection', (socket: any) => {
         socket.on('createRoom', async (data: any) => {
@@ -102,6 +101,5 @@ async function startServer(): Promise<void> {
     
     httpServer.listen(port, () => console.log(`Listening on port ${port}`));
 }
-
 
 startServer().catch(console.error);
