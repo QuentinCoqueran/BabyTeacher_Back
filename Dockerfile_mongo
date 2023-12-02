@@ -1,8 +1,11 @@
 FROM mongo:latest
 
 # Définir les variables d'environnement pour l'utilisateur MongoDB
-ENV MONGO_INITDB_ROOT_USERNAME=babyUser
-ENV MONGO_INITDB_ROOT_PASSWORD=toto
+ARG MONGO_INITDB_ROOT_USERNAME
+ARG MONGO_INITDB_ROOT_PASSWORD
+
+ENV MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME
+ENV MONGO_INITDB_ROOT_PASSWORD=$MONGO_INITDB_ROOT_PASSWORD
 
 # Copier le script d'initialisation de la base de données
 COPY ./init-mongo.js /docker-entrypoint-initdb.d/
