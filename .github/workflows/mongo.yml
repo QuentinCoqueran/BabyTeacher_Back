@@ -1,0 +1,19 @@
+name: Build mongo docker image
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Docker login to registry
+      run: echo "${{ secrets.REGISTRY_PASS }}" | docker login rg.fr-par.scw.cloud/babyteacher-regitstry -u nologin --password-stdin
+    - name: Build the Docker image for the mongodb
+      run: docker build --build-arg MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_INITDB_ROOT_USERNAME }} --build-arg MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_INITDB_ROOT_PASSWORD }} . -f Dockerfile_back --tag rg.fr-par.scw.cloud/babyteacher-registry/mongo:latest
+    - name: Push the image to private registry
+      run: docker push rg.fr-par.scw.cloud/babyteacher-registry/mongo
