@@ -1,4 +1,4 @@
-db = connect(`mongodb://${process.env.MONGO_INITDB_ROOT_USERNAME}:${process.env.MONGO_INITDB_ROOT_USERNAME}@localhost:27017/admin`);
+db = connect(`mongodb://localhost:27017`);
 
 db = db.getSiblingDB(`babyteacher`);
 
