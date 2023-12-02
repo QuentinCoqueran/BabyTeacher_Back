@@ -4,5 +4,8 @@ FROM mongo:latest
 ENV MONGO_INITDB_ROOT_USERNAME=babyUser
 ENV MONGO_INITDB_ROOT_PASSWORD=toto
 
+# Copier le script d'initialisation de la base de données
+COPY ./init-mongo.js /docker-entrypoint-initdb.d/
+
 # Exposer le port par défaut de MongoDB
 EXPOSE 27017
