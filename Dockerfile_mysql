@@ -7,9 +7,11 @@ ENV MYSQL_USER=babyuser
 ENV MYSQL_PASSWORD=pass
 ENV MYSQL_ROOT_PASSWORD=pass
 
-ADD setup.sql /etc/mysql/setup.sql
+ADD setup.sql /docker-entrypoint-initdb.d
 
-RUN sed -i 's/MYSQL_DATABASE/'$MYSQL_DATABASE'/g' /etc/mysql/setup.sql
-RUN cp /etc/mysql/setup.sql /docker-entrypoint-initdb.d
+#ADD setup.sql /etc/mysql/setup.sql
+#
+#RUN sed -i 's/MYSQL_DATABASE/'$MYSQL_DATABASE'/g' /etc/mysql/setup.sql
+#RUN cp /etc/mysql/setup.sql /docker-entrypoint-initdb.d
 
 EXPOSE 3306
