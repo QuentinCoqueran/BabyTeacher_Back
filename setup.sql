@@ -1,4 +1,8 @@
+CREATE DATABASE babyteacher;
+
 USE babyteacher;
+
+GRANT ALL PRIVILEGES ON *.* TO 'babyuser'@'%';
 
 CREATE TABLE activityZone (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -110,4 +114,3 @@ INSERT INTO role (role) VALUES ('babysitter');
 INSERT INTO role (role) VALUES ('parent');
 
 INSERT INTO users (name, lastname, login, password, id_role, age, sexe, photo, email, description) VALUES ('admin', 'admin', 'admin', 'admin', 1, 0, 0, 'admin', 'admin', 'admin');
-
