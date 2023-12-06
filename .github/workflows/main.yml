@@ -18,5 +18,5 @@ jobs:
           workflow_file_name: terraform_deploy.yml
           ref: main
           wait_interval: 30
-          propagate_failure: false
+          propagate_failure: true
           wait_workflow: true
