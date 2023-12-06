@@ -16,5 +16,5 @@ jobs:
     - name: Build the Docker image for the mysql database
       run: docker build --build-arg MYSQL_USER=${{ secrets.MYSQL_USER }} --build-arg MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }} --build-arg MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }} . -f Dockerfile_mysql --tag rg.fr-par.scw.cloud/babyteacher-registry/mysql:latest
     - name: Push the image to private registry
-      run:
+      run: docker push rg.fr-par.scw.cloud/babyteacher-registry/mysql
         
