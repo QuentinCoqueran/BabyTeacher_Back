@@ -1,4 +1,4 @@
-name: 'terraform-trigger'
+name: 'Deployment'
 
 on:
   push:
